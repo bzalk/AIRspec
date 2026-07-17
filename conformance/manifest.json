@@ -1,0 +1,189 @@
+{
+  "airspecVersion": "1.0",
+  "suiteVersion": "1.0.0",
+  "catalog": "catalog.json",
+  "policy": "policy.example.json",
+  "semantics": {
+    "accept": "A conforming validation pipeline MUST accept the document (all layers pass, given catalog.json and policy.example.json).",
+    "reject": "A conforming validation pipeline MUST reject the document no later than the declared layer. Rejecting earlier is conformant: the published Layer-1 schema's deny-by-default rules catch several Layer-4 violations structurally.",
+    "layers": {
+      "1": "Schema",
+      "2": "Semantic",
+      "3": "Authorization",
+      "4": "AIRMark"
+    }
+  },
+  "cases": [
+    {
+      "id": "V-01",
+      "file": "valid/v01-minimal.json",
+      "expect": "accept",
+      "description": "Smallest conforming document: meta, empty datasets, one text component."
+    },
+    {
+      "id": "V-02",
+      "file": "valid/v02-class-a-core.json",
+      "expect": "accept",
+      "description": "Class A: parameter, aggregate and list datasets, metrics, table with badge and formats, filter bar."
+    },
+    {
+      "id": "V-03",
+      "file": "valid/v03-class-av-layered-chart.json",
+      "expect": "accept",
+      "description": "Class AV: layered AIRMark graphic with structured-predicate transform and dual axes."
+    },
+    {
+      "id": "V-04",
+      "file": "valid/v04-class-avi-interactions.json",
+      "expect": "accept",
+      "description": "Class AVI: point selection with condition encoding, drilldown setParameter, navigate to registered route."
+    },
+    {
+      "id": "L1-01",
+      "file": "invalid/l1-01-missing-layout.json",
+      "expect": "reject",
+      "layer": 1,
+      "violation": "Required top-level property `layout` is absent."
+    },
+    {
+      "id": "L1-02",
+      "file": "invalid/l1-02-unknown-top-level-property.json",
+      "expect": "reject",
+      "layer": 1,
+      "violation": "Unknown non-extension top-level property `endpoints` (deny by default; also smuggles a URL)."
+    },
+    {
+      "id": "L1-03",
+      "file": "invalid/l1-03-bad-id-grammar.json",
+      "expect": "reject",
+      "layer": 1,
+      "violation": "Component id contains whitespace and punctuation, violating the id grammar."
+    },
+    {
+      "id": "L1-04",
+      "file": "invalid/l1-04-filter-value-and-parameter.json",
+      "expect": "reject",
+      "layer": 1,
+      "violation": "Filter supplies both `value` and `parameter`; exactly one is permitted."
+    },
+    {
+      "id": "L2-01",
+      "file": "invalid/l2-01-component-dataset-missing.json",
+      "expect": "reject",
+      "layer": 2,
+      "violation": "Metric component references datasetId `doesNotExist`, which is not defined in `datasets`."
+    },
+    {
+      "id": "L2-02",
+      "file": "invalid/l2-02-unknown-source.json",
+      "expect": "reject",
+      "layer": 2,
+      "violation": "Dataset source `invoices` does not exist in the catalog."
+    },
+    {
+      "id": "L2-03",
+      "file": "invalid/l2-03-unknown-field-on-source.json",
+      "expect": "reject",
+      "layer": 2,
+      "violation": "List dataset requests field `discount_pct`, which the `orders` source does not declare."
+    },
+    {
+      "id": "L2-04",
+      "file": "invalid/l2-04-aggregation-not-allowed-for-field.json",
+      "expect": "reject",
+      "layer": 2,
+      "violation": "`sum` applied to enum field `status`; the catalog declares no aggregations for it."
+    },
+    {
+      "id": "L2-05",
+      "file": "invalid/l2-05-filter-parameter-undefined.json",
+      "expect": "reject",
+      "layer": 2,
+      "violation": "Filter references parameter `missingParam`, which is not defined in `parameters`."
+    },
+    {
+      "id": "L2-06",
+      "file": "invalid/l2-06-table-column-not-in-dataset.json",
+      "expect": "reject",
+      "layer": 2,
+      "violation": "Table column `region` is not among the fields returned by its bound dataset."
+    },
+    {
+      "id": "L2-07",
+      "file": "invalid/l2-07-duplicate-component-ids.json",
+      "expect": "reject",
+      "layer": 2,
+      "violation": "Two components share the id `revenueMetric`; component ids must be unique."
+    },
+    {
+      "id": "L2-08",
+      "file": "invalid/l2-08-encoding-field-not-in-dataset.json",
+      "expect": "reject",
+      "layer": 2,
+      "violation": "Chart encoding references `profit`, which is neither a field nor an alias in the bound dataset's output."
+    },
+    {
+      "id": "L2-09",
+      "file": "invalid/l2-09-interaction-component-missing.json",
+      "expect": "reject",
+      "layer": 2,
+      "violation": "Interaction targets component `ghostChart`, which does not exist in the layout."
+    },
+    {
+      "id": "L2-10",
+      "file": "invalid/l2-10-navigate-unregistered-route.json",
+      "expect": "reject",
+      "layer": 2,
+      "violation": "Navigate action targets route `adminPanel`, which is not registered in the catalog."
+    },
+    {
+      "id": "L3-01",
+      "file": "invalid/l3-01-restricted-field-requested.json",
+      "expect": "reject",
+      "layer": 3,
+      "violation": "Dataset and table request `cost_basis` (classification `financial-internal`), denied by policy.example.json."
+    },
+    {
+      "id": "L3-02",
+      "file": "invalid/l3-02-limit-exceeds-policy.json",
+      "expect": "reject",
+      "layer": 3,
+      "violation": "Dataset `limit` of 250000 exceeds the policy's maximumRows ceiling of 5000."
+    },
+    {
+      "id": "L4-01",
+      "file": "invalid/l4-01-graphic-data-source.json",
+      "expect": "reject",
+      "layer": 4,
+      "violation": "Graphic carries a `data` source with a remote URL; graphics never carry data."
+    },
+    {
+      "id": "L4-02",
+      "file": "invalid/l4-02-expression-string-filter.json",
+      "expect": "reject",
+      "layer": 4,
+      "violation": "Transform filter is an expression string, not a structured predicate."
+    },
+    {
+      "id": "L4-03",
+      "file": "invalid/l4-03-url-valued-mark-property.json",
+      "expect": "reject",
+      "layer": 4,
+      "violation": "Mark carries a URL-valued `href` property."
+    },
+    {
+      "id": "L4-04",
+      "file": "invalid/l4-04-disallowed-mark-type.json",
+      "expect": "reject",
+      "layer": 4,
+      "violation": "Mark type `geoshape` is outside the core AIRMark allowlist."
+    },
+    {
+      "id": "L4-05",
+      "file": "invalid/l4-05-disallowed-transform.json",
+      "expect": "reject",
+      "layer": 4,
+      "violation": "`calculate` is an expression-bearing transform and is not part of AIRMark."
+    }
+  ]
+}

@@ -1,6 +1,8 @@
 {
-  "$comment": "Example Source Catalog entry (AIRspec.md section 6). The Host publishes entries like this to the Generator instead of credentials or endpoints. This file is illustrative; catalog structure is Host-defined guidance, not a normative AIRspec document.",
-  "id": "orders",
+  "catalogVersion": "1.0",
+  "sources": [
+    {
+      "id": "orders",
   "label": "Orders",
   "description": "Customer orders across all sales channels.",
   "operations": ["list", "aggregate", "distinct"],
@@ -49,8 +51,10 @@
       "aggregations": ["sum", "average", "minimum", "maximum", "median"]
     }
   },
-  "limits": {
-    "maximumRows": 5000,
-    "maximumDateRangeDays": 730
-  }
+      "limits": {
+        "maximumRows": 5000,
+        "maximumDateRangeDays": 730
+      }
+    }
+  ]
 }

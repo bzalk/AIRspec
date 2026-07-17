@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://airspec.dev/schema/1.0/catalog.schema.json",
+  "title": "AIRspec Source Catalog",
+  "description": "The Source Catalog is the Host-published description of the logical data sources available to an AIRspec Generator (AIRspec.md section 6). It is the only view of the Host's data the Generator ever receives. This schema makes the catalog format portable so generator prompts and tooling work across Hosts.",
+  "type": "object",
+  "required": ["catalogVersion", "sources"],
+  "additionalProperties": false,
+  "patternProperties": { "^x-": {} },
+  "properties": {
+    "catalogVersion": { "const": "1.0" },
+    "limits": {
+      "$ref": "#/$defs/limits",
+      "description": "Host-wide default limits, overridable per source."
+    },
+    "relativeDateTokens": {
+      "type": "array",
+      "description": "Additional relative date tokens beyond the AIRspec standard set that this Host resolves.",
+      "items": { "type": "string", "pattern": "^[a-zA-Z][a-zA-Z0-9]{0,63}$" },
+      "maxItems": 25
+    },
+    "routes": {
+      "type": "array",
+      "description": "Registered route IDs the Generator may target with navigate actions.",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "required": ["id", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "label": { "type": "string", "maxLength": 100 },
+          "description": { "type": "string", "maxLength": 500 },
+          "params": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/fieldName" },
+            "maxItems": 10
+          }
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100,
+      "items": { "$ref": "#/$defs/source" }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-zA-Z][a-zA-Z0-9_-]{0,63}$" },
+    "fieldName": { "type": "string", "pattern": "^[a-zA-Z][a-zA-Z0-9_.]{0,127}$" },
+    "aggregation": {
+      "enum": ["count", "countDistinct", "sum", "average", "minimum", "maximum", "median"]
+    },
+    "timeUnit": { "enum": ["day", "week", "month", "quarter", "year"] },
+    "operator": {
+      "enum": [
+        "equals", "notEquals", "in", "notIn", "contains", "startsWith",
+        "endsWith", "greaterThan", "greaterThanOrEqual", "lessThan",
+        "lessThanOrEqual", "between", "isNull", "isNotNull", "isTrue", "isFalse"
+      ]
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "maximumRows": { "type": "integer", "minimum": 1 },
+        "maximumDateRangeDays": { "type": "integer", "minimum": 1 },
+        "maximumPageSize": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "source": {
+      "type": "object",
+      "required": ["id", "label", "operations", "fields"],
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {} },
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "label": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "description": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "Business meaning of the source. Written for the Generator; be specific."
+        },
+        "operations": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "enum": ["list", "aggregate", "distinct"] }
+        },
+        "fields": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 200,
+          "propertyNames": { "pattern": "^[a-zA-Z][a-zA-Z0-9_.]{0,127}$" },
+          "additionalProperties": { "$ref": "#/$defs/field" }
+        },
+        "relationships": {
+          "type": "array",
+          "description": "Declared relationships the Host can traverse. Absence means no joins are available from this source.",
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "required": ["source", "via"],
+            "additionalProperties": false,
+            "properties": {
+              "source": { "$ref": "#/$defs/id" },
+              "via": { "$ref": "#/$defs/fieldName" },
+              "label": { "type": "string", "maxLength": 100 }
+            }
+          }
+        },
+        "limits": { "$ref": "#/$defs/limits" }
+      }
+    },
+    "field": {
+      "type": "object",
+      "required": ["type", "label"],
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {} },
+      "properties": {
+        "type": {
+          "enum": ["string", "number", "integer", "boolean", "date", "datetime", "enum", "currency", "percent", "duration"]
+        },
+        "label": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "description": { "type": "string", "maxLength": 500 },
+        "values": {
+          "type": "array",
+          "description": "Known values for enum fields; sample values for others.",
+          "items": { "type": ["string", "number", "boolean"] },
+          "maxItems": 100
+        },
+        "filterable": { "type": "boolean", "default": false },
+        "groupable": { "type": "boolean", "default": false },
+        "sortable": { "type": "boolean", "default": false },
+        "operators": {
+          "type": "array",
+          "description": "Explicit operator allowlist. When omitted, the Host applies its type-default operator set.",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/operator" }
+        },
+        "aggregations": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/aggregation" }
+        },
+        "timeUnits": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/timeUnit" }
+        },
+        "classification": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Host-defined authorization category (e.g. 'general', 'financial', 'pii'). Layer 3 policy decides who may read each category."
+        }
+      }
+    }
+  }
+}

@@ -213,9 +213,9 @@ The Host MUST validate every submitted parameter value against the parameter's d
 
 ### 6.1 Sources and the Source Catalog
 
-The Host publishes a Source Catalog to the Generator. The catalog — not this specification — determines which sources, fields, operators, aggregations, and limits a given document may use.
+The Host publishes a Source Catalog to the Generator. A Source Catalog MUST conform to the published schema at `schema/1.0/catalog.schema.json`. The catalog instance determines which sources, fields, operators, aggregations, routes, and limits a given document may use.
 
-A catalog entry SHOULD include, per source: `id`, `label`, `description`, supported `operations` (`list`, `aggregate`, `distinct`), a `fields` map, allowed relationships, and `limits`.
+A catalog entry MUST include, per source: `id`, `label`, supported `operations` (`list`, `aggregate`, `distinct`), and a `fields` map. It MAY include a `description`, allowed relationships, and source-specific `limits`.
 
 A catalog field SHOULD declare:
 

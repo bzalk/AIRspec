@@ -1,0 +1,69 @@
+{
+  "catalogVersion": "1.0",
+  "limits": { "maximumRows": 5000, "maximumPageSize": 250 },
+  "routes": [
+    { "id": "accountDetail", "label": "Account detail page", "params": ["accountId"] }
+  ],
+  "sources": [
+    {
+      "id": "orders",
+      "label": "Orders",
+      "description": "Customer orders across all sales channels.",
+      "operations": ["list", "aggregate", "distinct"],
+      "fields": {
+        "order_id": {
+          "type": "string", "label": "Order Number",
+          "filterable": true, "sortable": true
+        },
+        "created_at": {
+          "type": "datetime", "label": "Created",
+          "filterable": true, "groupable": true, "sortable": true,
+          "timeUnits": ["day", "week", "month", "quarter", "year"]
+        },
+        "region": {
+          "type": "enum", "label": "Region",
+          "values": ["West", "East", "North", "South"],
+          "filterable": true, "groupable": true, "sortable": true
+        },
+        "status": {
+          "type": "enum", "label": "Status",
+          "values": ["Open", "Shipped", "Delivered", "Cancelled"],
+          "filterable": true, "groupable": true, "sortable": true
+        },
+        "total": {
+          "type": "currency", "label": "Order Total",
+          "filterable": true, "sortable": true,
+          "aggregations": ["sum", "average", "minimum", "maximum", "median"]
+        },
+        "cost_basis": {
+          "type": "currency", "label": "Cost Basis",
+          "description": "Internal unit cost. Restricted by policy in most deployments.",
+          "filterable": true, "sortable": true,
+          "aggregations": ["sum", "average"],
+          "classification": "financial-internal"
+        }
+      },
+      "limits": { "maximumRows": 5000, "maximumDateRangeDays": 730 }
+    },
+    {
+      "id": "accounts",
+      "label": "Accounts",
+      "description": "Customer accounts.",
+      "operations": ["list", "distinct"],
+      "fields": {
+        "account_id": { "type": "string", "label": "Account ID", "filterable": true, "sortable": true },
+        "account_name": { "type": "string", "label": "Account Name", "filterable": true, "sortable": true },
+        "region": {
+          "type": "enum", "label": "Region",
+          "values": ["West", "East", "North", "South"],
+          "filterable": true, "groupable": true, "sortable": true
+        },
+        "lifetime_value": {
+          "type": "currency", "label": "Lifetime Value",
+          "filterable": true, "sortable": true,
+          "aggregations": ["sum", "average", "minimum", "maximum"]
+        }
+      }
+    }
+  ]
+}

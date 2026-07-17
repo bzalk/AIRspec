@@ -1,0 +1,169 @@
+{
+  "airspec": "1.0",
+  "meta": {
+    "title": "Order Totals",
+    "tags": [
+      "conformance"
+    ]
+  },
+  "parameters": [
+    {
+      "id": "period",
+      "type": "dateRange",
+      "label": "Period",
+      "required": true,
+      "default": {
+        "relative": "last90Days"
+      }
+    }
+  ],
+  "datasets": [
+    {
+      "id": "totals",
+      "source": "orders",
+      "operation": "aggregate",
+      "filters": [
+        {
+          "field": "created_at",
+          "operator": "between",
+          "parameter": "missingParam"
+        }
+      ],
+      "metrics": [
+        {
+          "operation": "count",
+          "alias": "orderCount"
+        },
+        {
+          "operation": "sum",
+          "field": "total",
+          "alias": "revenue"
+        }
+      ]
+    },
+    {
+      "id": "orderList",
+      "source": "orders",
+      "operation": "list",
+      "fields": [
+        "order_id",
+        "created_at",
+        "status",
+        "total"
+      ],
+      "filters": [
+        {
+          "field": "created_at",
+          "operator": "between",
+          "parameter": "period"
+        }
+      ],
+      "sort": [
+        {
+          "field": "created_at",
+          "direction": "descending"
+        }
+      ],
+      "pagination": {
+        "pageSize": 25
+      }
+    }
+  ],
+  "layout": {
+    "id": "root",
+    "type": "stack",
+    "gap": "medium",
+    "children": [
+      {
+        "id": "filters",
+        "type": "filterBar",
+        "parameters": [
+          "period"
+        ]
+      },
+      {
+        "id": "grid1",
+        "type": "grid",
+        "gap": "medium",
+        "children": [
+          {
+            "id": "revenueMetric",
+            "type": "metric",
+            "datasetId": "totals",
+            "title": "Revenue",
+            "valueField": "revenue",
+            "format": {
+              "type": "currency",
+              "currency": "USD",
+              "maximumFractionDigits": 0
+            },
+            "grid": {
+              "span": 3
+            }
+          },
+          {
+            "id": "countMetric",
+            "type": "metric",
+            "datasetId": "totals",
+            "title": "Orders",
+            "valueField": "orderCount",
+            "format": {
+              "type": "number",
+              "maximumFractionDigits": 0
+            },
+            "grid": {
+              "span": 3
+            }
+          }
+        ]
+      },
+      {
+        "id": "orderTable",
+        "type": "table",
+        "datasetId": "orderList",
+        "columns": [
+          {
+            "field": "order_id",
+            "label": "Order",
+            "sortable": true
+          },
+          {
+            "field": "created_at",
+            "label": "Created",
+            "format": {
+              "type": "date",
+              "pattern": "MMM d, yyyy"
+            }
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "format": {
+              "type": "badge",
+              "map": {
+                "Open": "warning",
+                "Delivered": "emphasisPositive"
+              }
+            }
+          },
+          {
+            "field": "total",
+            "label": "Total",
+            "align": "right",
+            "format": {
+              "type": "currency",
+              "currency": "USD"
+            }
+          }
+        ],
+        "pagination": {
+          "enabled": true,
+          "pageSize": 25
+        },
+        "grid": {
+          "span": 12
+        }
+      }
+    ]
+  }
+}

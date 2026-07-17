@@ -1,0 +1,177 @@
+{
+  "airspec": "1.0",
+  "meta": {
+    "title": "Region Drilldown"
+  },
+  "parameters": [
+    {
+      "id": "region",
+      "type": "multiSelect",
+      "label": "Region",
+      "options": {
+        "type": "fieldValues",
+        "source": "orders",
+        "field": "region"
+      }
+    }
+  ],
+  "datasets": [
+    {
+      "id": "byRegion",
+      "source": "orders",
+      "operation": "aggregate",
+      "dimensions": [
+        {
+          "field": "region",
+          "alias": "region"
+        }
+      ],
+      "metrics": [
+        {
+          "operation": "sum",
+          "field": "total",
+          "alias": "revenue"
+        }
+      ]
+    },
+    {
+      "id": "topAccounts",
+      "source": "accounts",
+      "operation": "list",
+      "fields": [
+        "account_id",
+        "account_name",
+        "region",
+        "lifetime_value"
+      ],
+      "filters": [
+        {
+          "field": "region",
+          "operator": "in",
+          "parameter": "region"
+        }
+      ],
+      "sort": [
+        {
+          "field": "lifetime_value",
+          "direction": "descending"
+        }
+      ],
+      "pagination": {
+        "pageSize": 10
+      }
+    }
+  ],
+  "layout": {
+    "id": "root",
+    "type": "stack",
+    "gap": "medium",
+    "children": [
+      {
+        "id": "regionChart",
+        "type": "chart",
+        "datasetId": "byRegion",
+        "title": "Revenue by Region",
+        "grid": {
+          "span": 6,
+          "minHeight": 280
+        },
+        "graphic": {
+          "mark": {
+            "type": "bar",
+            "cornerRadiusEnd": 4
+          },
+          "encoding": {
+            "x": {
+              "field": "region",
+              "type": "nominal",
+              "sort": "-y"
+            },
+            "y": {
+              "field": "revenue",
+              "type": "quantitative"
+            },
+            "color": {
+              "condition": {
+                "selection": "picked",
+                "field": "region",
+                "type": "nominal"
+              },
+              "value": "#C7CDD8"
+            }
+          },
+          "selections": [
+            {
+              "id": "picked",
+              "type": "point",
+              "on": "click",
+              "fields": [
+                "region"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "accountTable",
+        "type": "table",
+        "datasetId": "topAccounts",
+        "columns": [
+          {
+            "field": "account_name",
+            "label": "Account"
+          },
+          {
+            "field": "region",
+            "label": "Region"
+          },
+          {
+            "field": "lifetime_value",
+            "label": "LTV",
+            "align": "right",
+            "format": {
+              "type": "currency",
+              "currency": "USD",
+              "maximumFractionDigits": 0
+            }
+          }
+        ],
+        "grid": {
+          "span": 6
+        }
+      }
+    ]
+  },
+  "interactions": [
+    {
+      "id": "drill",
+      "on": {
+        "component": "regionChart",
+        "event": "select"
+      },
+      "action": {
+        "type": "setParameter",
+        "parameter": "region",
+        "valueFrom": {
+          "field": "region"
+        }
+      }
+    },
+    {
+      "id": "openAccount",
+      "on": {
+        "component": "accountTable",
+        "event": "rowClick"
+      },
+      "action": {
+        "type": "navigate",
+        "route": "adminPanel",
+        "params": {
+          "accountId": {
+            "field": "account_id"
+          }
+        }
+      }
+    }
+  ]
+}

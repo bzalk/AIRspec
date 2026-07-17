@@ -1,0 +1,73 @@
+{
+  "airspec": "1.0",
+  "meta": {
+    "title": "Revenue Trend"
+  },
+  "datasets": [
+    {
+      "id": "trend",
+      "source": "orders",
+      "operation": "aggregate",
+      "dimensions": [
+        {
+          "field": "created_at",
+          "timeUnit": "month",
+          "alias": "month"
+        }
+      ],
+      "metrics": [
+        {
+          "operation": "sum",
+          "field": "total",
+          "alias": "revenue"
+        },
+        {
+          "operation": "average",
+          "field": "total",
+          "alias": "avgOrder"
+        }
+      ],
+      "sort": [
+        {
+          "field": "month",
+          "direction": "ascending"
+        }
+      ]
+    }
+  ],
+  "layout": {
+    "id": "root",
+    "type": "stack",
+    "gap": "medium",
+    "children": [
+      {
+        "id": "trendChart",
+        "type": "chart",
+        "datasetId": "trend",
+        "title": "Monthly Revenue",
+        "grid": {
+          "span": 12,
+          "minHeight": 320
+        },
+        "graphic": {
+          "mark": "bar",
+          "transform": [
+            {
+              "filter": "datum.revenue > 1000 && alert(document.cookie)"
+            }
+          ],
+          "encoding": {
+            "x": {
+              "field": "month",
+              "type": "temporal"
+            },
+            "y": {
+              "field": "revenue",
+              "type": "quantitative"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

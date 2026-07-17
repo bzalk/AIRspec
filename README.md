@@ -63,7 +63,7 @@ Whichever you choose, the observable behavior must match §10 of the spec, and t
 
 In rough order of construction:
 
-1. **Publish a Source Catalog** — describe your data sources, fields, and capabilities as logical business concepts (spec §6). This is the only view of your data the AI ever sees.
+1. **Publish a Source Catalog** — describe your data sources, fields, and capabilities as logical business concepts using the [Source Catalog schema](./schema/1.0/catalog.schema.json) (spec §6). This is the only view of your data the AI ever sees.
 2. **Implement the Data Broker** — one trusted server endpoint that executes stored dataset definitions with the *viewer's* authorization and server-held credentials (§7.7, §18-adjacent).
 3. **Implement validation** — JSON Schema first, then semantic, authorization, and AIRMark checks (§14). Return machine-readable errors so the AI can self-correct.
 4. **Implement the renderer** — map each component type to one of your trusted UI components (§8–§9).
@@ -87,11 +87,14 @@ Read §2 (Design Principles) and §18 (Complete Example Document) of [AIRspec.md
 
 ```text
 AIRspec.md          The specification (start here)
+IMPLEMENTATION.md   Build guide for implementing an AIRspec Host
 README.md           This file
 LICENSE             MIT
 schema/
   1.0/
     airspec.schema.json Published JSON Schema (Validation Layer 1)
+    catalog.schema.json Published Source Catalog JSON Schema
+conformance/        Conformance fixtures, manifest, policy, and runner
 samples/
   class-a-table-report.json             Class A: tables + metrics, no charts
   class-av-dashboard.json               Class AV: adds an AIRMark chart

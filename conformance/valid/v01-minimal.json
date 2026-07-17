@@ -1,0 +1,12 @@
+{
+  "airspec": "1.0",
+  "meta": {
+    "title": "Minimal Document"
+  },
+  "datasets": [],
+  "layout": {
+    "id": "root",
+    "type": "text",
+    "text": "The smallest conforming AIRspec document: metadata, no datasets, one text component."
+  }
+}

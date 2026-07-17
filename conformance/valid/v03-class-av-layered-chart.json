@@ -1,0 +1,114 @@
+{
+  "airspec": "1.0",
+  "meta": {
+    "title": "Revenue Trend"
+  },
+  "datasets": [
+    {
+      "id": "trend",
+      "source": "orders",
+      "operation": "aggregate",
+      "dimensions": [
+        {
+          "field": "created_at",
+          "timeUnit": "month",
+          "alias": "month"
+        }
+      ],
+      "metrics": [
+        {
+          "operation": "sum",
+          "field": "total",
+          "alias": "revenue"
+        },
+        {
+          "operation": "average",
+          "field": "total",
+          "alias": "avgOrder"
+        }
+      ],
+      "sort": [
+        {
+          "field": "month",
+          "direction": "ascending"
+        }
+      ]
+    }
+  ],
+  "layout": {
+    "id": "root",
+    "type": "stack",
+    "gap": "medium",
+    "children": [
+      {
+        "id": "trendChart",
+        "type": "chart",
+        "datasetId": "trend",
+        "title": "Monthly Revenue",
+        "grid": {
+          "span": 12,
+          "minHeight": 320
+        },
+        "graphic": {
+          "layers": [
+            {
+              "mark": {
+                "type": "bar",
+                "opacity": 0.85
+              },
+              "encoding": {
+                "x": {
+                  "field": "month",
+                  "type": "temporal",
+                  "title": "Month"
+                },
+                "y": {
+                  "field": "revenue",
+                  "type": "quantitative",
+                  "title": "Revenue",
+                  "axis": {
+                    "format": {
+                      "type": "currency",
+                      "currency": "USD",
+                      "maximumFractionDigits": 0,
+                      "notation": "compact"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "mark": {
+                "type": "line",
+                "point": true,
+                "interpolate": "monotone"
+              },
+              "transform": [
+                {
+                  "filter": {
+                    "field": "avgOrder",
+                    "gt": 0
+                  }
+                }
+              ],
+              "encoding": {
+                "x": {
+                  "field": "month",
+                  "type": "temporal"
+                },
+                "y": {
+                  "field": "avgOrder",
+                  "type": "quantitative",
+                  "title": "Avg Order",
+                  "axis": {
+                    "orient": "right"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

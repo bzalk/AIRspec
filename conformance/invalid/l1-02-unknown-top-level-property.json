@@ -1,0 +1,15 @@
+{
+  "airspec": "1.0",
+  "meta": {
+    "title": "Smuggled Property"
+  },
+  "datasets": [],
+  "layout": {
+    "id": "root",
+    "type": "text",
+    "text": "hello"
+  },
+  "endpoints": {
+    "orders": "https://internal.example.com/api/orders"
+  }
+}

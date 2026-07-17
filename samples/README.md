@@ -7,7 +7,7 @@ Example AIRspec documents, one per conformance class, plus an example Source Cat
 | `class-a-table-report.json` | **A — Core** | Parameters, aggregate + list datasets, metrics, a table with badges and conditional styling, an empty state. No charts. |
 | `class-av-dashboard.json` | **AV — Visualization** | Everything in Class A plus an AIRMark line chart with a temporal axis, color encoding, tooltips, and format objects. |
 | `class-avi-interactive-dashboard.json` | **AVI — Interactive** | Everything in Class AV plus selections, a layered dual-axis chart, chart-to-parameter drilldown, row-click navigation to a registered route, and CSV export. |
-| `catalogs/orders.catalog.json` | — | An example Source Catalog entry: the logical data description a Host publishes to the Generator (illustrative — catalog shape is Host-defined). |
+| `catalogs/orders.catalog.json` | — | An example Source Catalog: the logical data description a Host publishes to the Generator, conforming to `schema/1.0/catalog.schema.json`. |
 
 ## Validating a sample
 

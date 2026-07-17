@@ -1,0 +1,14 @@
+{
+  "$comment": "Example Layer-3 authorization policy for the conformance suite. Layer 3 is Host-defined by design; this file shows the minimum shape a policy fixture needs so authorization cases are testable. Hosts substitute their own policy model — the conformance requirement is only that documents violating the active policy are rejected.",
+  "policyVersion": "example-1",
+  "viewer": {
+    "id": "test-viewer",
+    "tenant": "tenant-a"
+  },
+  "allowedSources": ["orders", "accounts"],
+  "deniedClassifications": ["financial-internal"],
+  "limits": {
+    "maximumRows": 5000,
+    "maximumPageSize": 250
+  }
+}
