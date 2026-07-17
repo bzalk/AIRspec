@@ -11,13 +11,13 @@ Example AIRspec documents, one per conformance class, plus an example Source Cat
 
 ## Validating a sample
 
-Every sample validates against `../schema/airspec.schema.json` (Validation Layer 1). For example, with Python:
+Every sample validates against `../schema/1.0/airspec.schema.json` (Validation Layer 1). For example, with Python:
 
 ```bash
 pip install jsonschema
 python -c "
 import json, jsonschema
-schema = json.load(open('schema/airspec.schema.json'))
+schema = json.load(open('schema/1.0/airspec.schema.json'))
 doc = json.load(open('samples/class-av-dashboard.json'))
 jsonschema.validate(doc, schema)
 print('valid')

@@ -90,7 +90,8 @@ AIRspec.md          The specification (start here)
 README.md           This file
 LICENSE             MIT
 schema/
-  airspec.schema.json   Published JSON Schema (Validation Layer 1)
+  1.0/
+    airspec.schema.json Published JSON Schema (Validation Layer 1)
 samples/
   class-a-table-report.json             Class A: tables + metrics, no charts
   class-av-dashboard.json               Class AV: adds an AIRMark chart
