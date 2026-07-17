@@ -1,0 +1,148 @@
+{
+  "airspec": "1.0",
+  "meta": {
+    "title": "Open Support Tickets",
+    "description": "Unresolved tickets sorted by age, with headline counts.",
+    "tags": ["support", "sample", "class-a"]
+  },
+  "parameters": [
+    {
+      "id": "createdRange",
+      "type": "dateRange",
+      "label": "Created",
+      "required": true,
+      "default": { "relative": "last30Days" }
+    },
+    {
+      "id": "priority",
+      "type": "multiSelect",
+      "label": "Priority",
+      "options": {
+        "type": "static",
+        "values": [
+          { "value": "low", "label": "Low" },
+          { "value": "medium", "label": "Medium" },
+          { "value": "high", "label": "High" },
+          { "value": "urgent", "label": "Urgent" }
+        ]
+      },
+      "default": ["high", "urgent"]
+    }
+  ],
+  "datasets": [
+    {
+      "id": "ticketTotals",
+      "source": "tickets",
+      "operation": "aggregate",
+      "filters": [
+        { "field": "created_at", "operator": "between", "parameter": "createdRange" },
+        { "field": "priority", "operator": "in", "parameter": "priority" },
+        { "field": "status", "operator": "notEquals", "value": "resolved" }
+      ],
+      "metrics": [
+        { "operation": "count", "alias": "openCount" },
+        { "operation": "average", "field": "age_hours", "alias": "averageAgeHours" }
+      ]
+    },
+    {
+      "id": "ticketList",
+      "source": "tickets",
+      "operation": "list",
+      "fields": ["ticket_id", "subject", "priority", "status", "created_at", "age_hours"],
+      "filters": [
+        { "field": "created_at", "operator": "between", "parameter": "createdRange" },
+        { "field": "priority", "operator": "in", "parameter": "priority" },
+        { "field": "status", "operator": "notEquals", "value": "resolved" }
+      ],
+      "sort": [{ "field": "age_hours", "direction": "descending" }],
+      "pagination": { "pageSize": 25 }
+    }
+  ],
+  "layout": {
+    "id": "root",
+    "type": "stack",
+    "gap": "medium",
+    "children": [
+      {
+        "id": "filters",
+        "type": "filterBar",
+        "parameters": ["createdRange", "priority"]
+      },
+      {
+        "id": "summary",
+        "type": "grid",
+        "gap": "medium",
+        "children": [
+          {
+            "id": "openCountMetric",
+            "type": "metric",
+            "datasetId": "ticketTotals",
+            "title": "Open Tickets",
+            "valueField": "openCount",
+            "format": { "type": "number", "maximumFractionDigits": 0 },
+            "grid": { "span": 3 }
+          },
+          {
+            "id": "avgAgeMetric",
+            "type": "metric",
+            "datasetId": "ticketTotals",
+            "title": "Average Age",
+            "valueField": "averageAgeHours",
+            "format": { "type": "duration", "unit": "hours", "style": "short" },
+            "grid": { "span": 3 }
+          }
+        ]
+      },
+      {
+        "id": "ticketTable",
+        "type": "table",
+        "datasetId": "ticketList",
+        "title": "Oldest Open Tickets",
+        "columns": [
+          { "field": "ticket_id", "label": "Ticket", "sortable": true },
+          { "field": "subject", "label": "Subject" },
+          {
+            "field": "priority",
+            "label": "Priority",
+            "format": {
+              "type": "badge",
+              "map": {
+                "urgent": "emphasisNegative",
+                "high": "warning",
+                "medium": "emphasisNeutral",
+                "low": "muted"
+              }
+            }
+          },
+          { "field": "status", "label": "Status" },
+          {
+            "field": "created_at",
+            "label": "Created",
+            "format": { "type": "date", "pattern": "MMM d, yyyy" },
+            "sortable": true
+          },
+          {
+            "field": "age_hours",
+            "label": "Age (hrs)",
+            "align": "right",
+            "sortable": true,
+            "conditional": [
+              { "operator": "greaterThan", "value": 72, "style": "emphasisNegative" }
+            ]
+          }
+        ],
+        "pagination": { "enabled": true, "pageSize": 25 },
+        "grid": { "span": 12 }
+      },
+      {
+        "id": "noTickets",
+        "type": "emptyState",
+        "datasetId": "ticketList",
+        "message": "No open tickets match the selected filters. Nice work!"
+      }
+    ]
+  },
+  "theme": {
+    "density": "comfortable"
+  }
+}

@@ -1,0 +1,319 @@
+{
+  "airspec": "1.0",
+  "meta": {
+    "title": "Sales Overview",
+    "description": "Revenue and order activity for the selected period.",
+    "tags": [
+      "sales",
+      "sample",
+      "class-av"
+    ]
+  },
+  "parameters": [
+    {
+      "id": "dateRange",
+      "type": "dateRange",
+      "label": "Date Range",
+      "required": true,
+      "default": {
+        "relative": "last90Days"
+      }
+    },
+    {
+      "id": "region",
+      "type": "multiSelect",
+      "label": "Region",
+      "options": {
+        "type": "fieldValues",
+        "source": "orders",
+        "field": "region"
+      }
+    }
+  ],
+  "datasets": [
+    {
+      "id": "totals",
+      "source": "orders",
+      "operation": "aggregate",
+      "filters": [
+        {
+          "field": "created_at",
+          "operator": "between",
+          "parameter": "dateRange"
+        },
+        {
+          "field": "region",
+          "operator": "in",
+          "parameter": "region"
+        }
+      ],
+      "metrics": [
+        {
+          "operation": "sum",
+          "field": "total",
+          "alias": "revenue"
+        },
+        {
+          "operation": "count",
+          "alias": "orderCount"
+        }
+      ]
+    },
+    {
+      "id": "revenueByMonth",
+      "source": "orders",
+      "operation": "aggregate",
+      "filters": [
+        {
+          "field": "created_at",
+          "operator": "between",
+          "parameter": "dateRange"
+        },
+        {
+          "field": "region",
+          "operator": "in",
+          "parameter": "region"
+        }
+      ],
+      "dimensions": [
+        {
+          "field": "created_at",
+          "timeUnit": "month",
+          "alias": "month"
+        },
+        {
+          "field": "region",
+          "alias": "region"
+        }
+      ],
+      "metrics": [
+        {
+          "operation": "sum",
+          "field": "total",
+          "alias": "revenue"
+        }
+      ],
+      "sort": [
+        {
+          "field": "month",
+          "direction": "ascending"
+        }
+      ]
+    },
+    {
+      "id": "orderDetails",
+      "source": "orders",
+      "operation": "list",
+      "fields": [
+        "order_id",
+        "created_at",
+        "region",
+        "status",
+        "total"
+      ],
+      "filters": [
+        {
+          "field": "created_at",
+          "operator": "between",
+          "parameter": "dateRange"
+        },
+        {
+          "field": "region",
+          "operator": "in",
+          "parameter": "region"
+        }
+      ],
+      "sort": [
+        {
+          "field": "created_at",
+          "direction": "descending"
+        }
+      ],
+      "pagination": {
+        "pageSize": 50
+      }
+    }
+  ],
+  "layout": {
+    "id": "root",
+    "type": "stack",
+    "gap": "medium",
+    "children": [
+      {
+        "id": "filters",
+        "type": "filterBar",
+        "parameters": [
+          "dateRange",
+          "region"
+        ]
+      },
+      {
+        "id": "summary",
+        "type": "grid",
+        "gap": "medium",
+        "children": [
+          {
+            "id": "revenueMetric",
+            "type": "metric",
+            "datasetId": "totals",
+            "title": "Revenue",
+            "valueField": "revenue",
+            "format": {
+              "type": "currency",
+              "currency": "USD",
+              "maximumFractionDigits": 0
+            },
+            "grid": {
+              "span": 3
+            }
+          },
+          {
+            "id": "orderCountMetric",
+            "type": "metric",
+            "datasetId": "totals",
+            "title": "Orders",
+            "valueField": "orderCount",
+            "format": {
+              "type": "number",
+              "maximumFractionDigits": 0
+            },
+            "grid": {
+              "span": 3
+            }
+          },
+          {
+            "id": "revenueChart",
+            "type": "chart",
+            "datasetId": "revenueByMonth",
+            "title": "Revenue by Month",
+            "grid": {
+              "span": 6,
+              "minHeight": 320
+            },
+            "graphic": {
+              "mark": {
+                "type": "line",
+                "point": true,
+                "interpolate": "monotone"
+              },
+              "encoding": {
+                "x": {
+                  "field": "month",
+                  "type": "temporal",
+                  "title": "Month"
+                },
+                "y": {
+                  "field": "revenue",
+                  "type": "quantitative",
+                  "title": "Revenue",
+                  "axis": {
+                    "format": {
+                      "type": "currency",
+                      "currency": "USD",
+                      "maximumFractionDigits": 0
+                    }
+                  }
+                },
+                "color": {
+                  "field": "region",
+                  "type": "nominal",
+                  "title": "Region"
+                },
+                "tooltip": [
+                  {
+                    "field": "month",
+                    "type": "temporal",
+                    "title": "Month"
+                  },
+                  {
+                    "field": "region",
+                    "type": "nominal",
+                    "title": "Region"
+                  },
+                  {
+                    "field": "revenue",
+                    "type": "quantitative",
+                    "title": "Revenue",
+                    "format": {
+                      "type": "currency",
+                      "currency": "USD"
+                    }
+                  }
+                ]
+              },
+              "config": {
+                "view": {
+                  "stroke": null
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "orderTable",
+        "type": "table",
+        "datasetId": "orderDetails",
+        "title": "Order Details",
+        "columns": [
+          {
+            "field": "order_id",
+            "label": "Order #",
+            "sortable": true
+          },
+          {
+            "field": "created_at",
+            "label": "Created",
+            "format": {
+              "type": "date",
+              "pattern": "MMM d, yyyy"
+            },
+            "sortable": true
+          },
+          {
+            "field": "region",
+            "label": "Region",
+            "sortable": true
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "format": {
+              "type": "badge",
+              "map": {
+                "Open": "warning",
+                "Closed": "emphasisPositive"
+              }
+            }
+          },
+          {
+            "field": "total",
+            "label": "Total",
+            "align": "right",
+            "format": {
+              "type": "currency",
+              "currency": "USD"
+            },
+            "sortable": true
+          }
+        ],
+        "pagination": {
+          "enabled": true,
+          "pageSize": 50
+        },
+        "grid": {
+          "span": 12
+        }
+      }
+    ]
+  },
+  "theme": {
+    "density": "comfortable",
+    "palette": [
+      "#3264D6",
+      "#26A69A",
+      "#F59E0B",
+      "#DC5A5A"
+    ]
+  }
+}

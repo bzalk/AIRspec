@@ -1,0 +1,212 @@
+{
+  "airspec": "1.0",
+  "meta": {
+    "title": "Regional Performance Explorer",
+    "description": "Click a region in the chart to drill the whole report into that region. Click a row to open the account.",
+    "tags": ["sales", "sample", "class-avi"]
+  },
+  "parameters": [
+    {
+      "id": "period",
+      "type": "dateRange",
+      "label": "Period",
+      "required": true,
+      "default": { "relative": "yearToDate" }
+    },
+    {
+      "id": "region",
+      "type": "multiSelect",
+      "label": "Region",
+      "options": { "type": "fieldValues", "source": "orders", "field": "region" }
+    }
+  ],
+  "datasets": [
+    {
+      "id": "revenueByRegion",
+      "source": "orders",
+      "operation": "aggregate",
+      "filters": [
+        { "field": "created_at", "operator": "between", "parameter": "period" }
+      ],
+      "dimensions": [{ "field": "region", "alias": "region" }],
+      "metrics": [
+        { "operation": "sum", "field": "total", "alias": "revenue" },
+        { "operation": "count", "alias": "orderCount" }
+      ],
+      "sort": [{ "field": "revenue", "direction": "descending" }]
+    },
+    {
+      "id": "revenueTrend",
+      "source": "orders",
+      "operation": "aggregate",
+      "filters": [
+        { "field": "created_at", "operator": "between", "parameter": "period" },
+        { "field": "region", "operator": "in", "parameter": "region" }
+      ],
+      "dimensions": [
+        { "field": "created_at", "timeUnit": "month", "alias": "month" }
+      ],
+      "metrics": [
+        { "operation": "sum", "field": "total", "alias": "revenue" },
+        { "operation": "average", "field": "total", "alias": "averageOrder" }
+      ],
+      "sort": [{ "field": "month", "direction": "ascending" }]
+    },
+    {
+      "id": "topAccounts",
+      "source": "accounts",
+      "operation": "list",
+      "fields": ["account_id", "account_name", "region", "lifetime_value", "last_order_at"],
+      "filters": [
+        { "field": "region", "operator": "in", "parameter": "region" }
+      ],
+      "sort": [{ "field": "lifetime_value", "direction": "descending" }],
+      "pagination": { "pageSize": 20 }
+    }
+  ],
+  "layout": {
+    "id": "root",
+    "type": "stack",
+    "gap": "medium",
+    "children": [
+      {
+        "id": "filters",
+        "type": "filterBar",
+        "parameters": ["period", "region"]
+      },
+      {
+        "id": "chartsRow",
+        "type": "grid",
+        "gap": "medium",
+        "children": [
+          {
+            "id": "regionChart",
+            "type": "chart",
+            "datasetId": "revenueByRegion",
+            "title": "Revenue by Region (click to drill)",
+            "grid": { "span": 5, "minHeight": 320 },
+            "graphic": {
+              "mark": { "type": "bar", "cornerRadiusEnd": 4 },
+              "encoding": {
+                "y": { "field": "region", "type": "nominal", "title": null, "sort": "-x" },
+                "x": {
+                  "field": "revenue",
+                  "type": "quantitative",
+                  "title": "Revenue",
+                  "axis": { "format": { "type": "currency", "currency": "USD", "maximumFractionDigits": 0, "notation": "compact" } }
+                },
+                "color": {
+                  "condition": { "selection": "pickedRegion", "field": "region", "type": "nominal" },
+                  "value": "#C7CDD8"
+                },
+                "tooltip": [
+                  { "field": "region", "type": "nominal", "title": "Region" },
+                  { "field": "revenue", "type": "quantitative", "title": "Revenue", "format": { "type": "currency", "currency": "USD" } },
+                  { "field": "orderCount", "type": "quantitative", "title": "Orders", "format": { "type": "number", "maximumFractionDigits": 0 } }
+                ]
+              },
+              "selections": [
+                { "id": "pickedRegion", "type": "point", "on": "click", "fields": ["region"] }
+              ]
+            }
+          },
+          {
+            "id": "trendChart",
+            "type": "chart",
+            "datasetId": "revenueTrend",
+            "title": "Monthly Revenue and Average Order",
+            "grid": { "span": 7, "minHeight": 320 },
+            "graphic": {
+              "layers": [
+                {
+                  "mark": { "type": "bar", "opacity": 0.85 },
+                  "encoding": {
+                    "x": { "field": "month", "type": "temporal", "title": "Month" },
+                    "y": {
+                      "field": "revenue",
+                      "type": "quantitative",
+                      "title": "Revenue",
+                      "axis": { "format": { "type": "currency", "currency": "USD", "maximumFractionDigits": 0, "notation": "compact" } }
+                    }
+                  }
+                },
+                {
+                  "mark": { "type": "line", "point": true, "interpolate": "monotone", "strokeWidth": 2 },
+                  "encoding": {
+                    "x": { "field": "month", "type": "temporal" },
+                    "y": {
+                      "field": "averageOrder",
+                      "type": "quantitative",
+                      "title": "Avg Order",
+                      "axis": { "orient": "right", "format": { "type": "currency", "currency": "USD", "maximumFractionDigits": 0 } }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "accountsTable",
+        "type": "table",
+        "datasetId": "topAccounts",
+        "title": "Top Accounts (click a row to open)",
+        "columns": [
+          { "field": "account_name", "label": "Account", "sortable": true },
+          { "field": "region", "label": "Region", "sortable": true },
+          {
+            "field": "lifetime_value",
+            "label": "Lifetime Value",
+            "align": "right",
+            "sortable": true,
+            "format": { "type": "currency", "currency": "USD", "maximumFractionDigits": 0 }
+          },
+          {
+            "field": "last_order_at",
+            "label": "Last Order",
+            "format": { "type": "date", "pattern": "MMM d, yyyy" },
+            "sortable": true
+          }
+        ],
+        "pagination": { "enabled": true, "pageSize": 20 },
+        "grid": { "span": 12 }
+      }
+    ]
+  },
+  "theme": {
+    "density": "comfortable",
+    "palette": ["#3264D6", "#26A69A", "#F59E0B", "#DC5A5A"]
+  },
+  "interactions": [
+    {
+      "id": "drillIntoRegion",
+      "on": { "component": "regionChart", "event": "select" },
+      "action": {
+        "type": "setParameter",
+        "parameter": "region",
+        "valueFrom": { "field": "region" }
+      }
+    },
+    {
+      "id": "openAccount",
+      "on": { "component": "accountsTable", "event": "rowClick" },
+      "action": {
+        "type": "navigate",
+        "route": "accountDetail",
+        "params": {
+          "accountId": { "field": "account_id" }
+        }
+      }
+    },
+    {
+      "id": "exportAccounts",
+      "on": { "component": "accountsTable", "event": "click" },
+      "action": {
+        "type": "export",
+        "datasetId": "topAccounts",
+        "format": "csv"
+      }
+    }
+  ]
+}

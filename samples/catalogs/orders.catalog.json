@@ -1,0 +1,56 @@
+{
+  "$comment": "Example Source Catalog entry (AIRspec.md section 6). The Host publishes entries like this to the Generator instead of credentials or endpoints. This file is illustrative; catalog structure is Host-defined guidance, not a normative AIRspec document.",
+  "id": "orders",
+  "label": "Orders",
+  "description": "Customer orders across all sales channels.",
+  "operations": ["list", "aggregate", "distinct"],
+  "fields": {
+    "order_id": {
+      "type": "string",
+      "label": "Order Number",
+      "description": "Unique order identifier.",
+      "filterable": true,
+      "groupable": false,
+      "sortable": true
+    },
+    "created_at": {
+      "type": "datetime",
+      "label": "Created",
+      "description": "When the order was placed.",
+      "filterable": true,
+      "groupable": true,
+      "sortable": true,
+      "timeUnits": ["day", "week", "month", "quarter", "year"]
+    },
+    "region": {
+      "type": "enum",
+      "label": "Region",
+      "description": "Sales region assigned at order time.",
+      "values": ["West", "East", "North", "South"],
+      "filterable": true,
+      "groupable": true,
+      "sortable": true
+    },
+    "status": {
+      "type": "enum",
+      "label": "Status",
+      "values": ["Open", "Shipped", "Delivered", "Cancelled"],
+      "filterable": true,
+      "groupable": true,
+      "sortable": true
+    },
+    "total": {
+      "type": "currency",
+      "label": "Order Total",
+      "description": "Total order value including tax.",
+      "filterable": true,
+      "groupable": false,
+      "sortable": true,
+      "aggregations": ["sum", "average", "minimum", "maximum", "median"]
+    }
+  },
+  "limits": {
+    "maximumRows": 5000,
+    "maximumDateRangeDays": 730
+  }
+}
