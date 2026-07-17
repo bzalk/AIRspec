@@ -1,39 +1,675 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="AIRspec is a declarative, safety-first JSON format for AI-generated dynamic reports.">
-  <title>AIRspec — AI Reporting Specification</title>
-  <style>
-    :root { color-scheme: light; --ink: #18212f; --muted: #536174; --line: #d8dee8; --accent: #1769e0; --paper: #fff; --wash: #f4f7fb; }
-    * { box-sizing: border-box; }
-    body { margin: 0; background: var(--wash); color: var(--ink); font: 17px/1.65 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    main { width: min(760px, calc(100% - 40px)); margin: 12vh auto 8vh; padding: clamp(32px, 7vw, 72px); background: var(--paper); border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 18px 60px rgba(31, 48, 73, .09); }
-    .eyebrow { margin: 0 0 10px; color: var(--accent); font-size: .78rem; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
-    h1 { margin: 0; font-size: clamp(3rem, 10vw, 5.6rem); line-height: .95; letter-spacing: -.055em; }
-    .lead { max-width: 630px; margin: 28px 0; color: var(--muted); font-size: clamp(1.15rem, 3vw, 1.42rem); }
-    nav { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
-    a { color: var(--accent); }
-    nav a { padding: 10px 16px; border: 1px solid var(--line); border-radius: 999px; font-weight: 650; text-decoration: none; }
-    nav a:first-child { border-color: var(--accent); background: var(--accent); color: white; }
-    nav a:hover { transform: translateY(-1px); }
-    footer { margin-top: 52px; padding-top: 22px; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
-    code { padding: .12em .35em; border-radius: 5px; background: var(--wash); font-size: .9em; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIRspec — AI Reporting Specification</title>
+<meta name="description" content="AIRspec is a declarative, safety-first JSON format for AI-generated dynamic reports. The AI writes the document; your application validates and renders it with trusted code.">
+<link rel="canonical" href="https://airspec.dev/">
+<meta property="og:title" content="AIRspec — AI Reporting Specification">
+<meta property="og:description" content="A declarative, safety-first JSON format for AI-generated reports. Declare the report. Trust the host.">
+<meta property="og:url" content="https://airspec.dev/">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Palette derived from the spec's own §18 example theme */
+    --paper: #F4F7FB;
+    --panel: #FFFFFF;
+    --ink: #0E1626;
+    --ink-soft: #4A576C;
+    --ink-faint: #8592A6;
+    --line: #E1E7F0;
+    --blue: #3264D6;
+    --blue-deep: #2350B8;
+    --teal: #26A69A;
+    --amber: #F59E0B;
+    --red: #DC5A5A;
+    --codebg: #0E1830;
+    --codeline: #1C2A4A;
+    --code-key: #8FB4FF;
+    --code-str: #7FDBCB;
+    --code-num: #FFC46B;
+    --code-punct: #5B6C8F;
+    --radius: 14px;
+    --disp: "Bricolage Grotesque", "Inter", sans-serif;
+    --body: "Inter", -apple-system, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--body);
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--blue-deep); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  a:focus-visible, button:focus-visible {
+    outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 4px;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  .mono { font-family: var(--mono); }
+
+  /* ---------- Nav ---------- */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(244, 247, 251, .94);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+  }
+  .wordmark {
+    font-family: var(--disp); font-weight: 800; font-size: 22px;
+    letter-spacing: -0.02em; color: var(--ink);
+  }
+  .wordmark:hover { text-decoration: none; }
+  .wordmark .air { color: var(--blue); }
+  .nav-links { display: flex; gap: 26px; align-items: center; }
+  .nav-links a {
+    font-size: 14.5px; font-weight: 500; color: var(--ink-soft);
+  }
+  .nav-links a:hover { color: var(--ink); text-decoration: none; }
+  .nav-cta {
+    font-size: 14px; font-weight: 600; color: #fff !important;
+    background: var(--ink); padding: 8px 16px; border-radius: 999px;
+    transition: background .15s ease;
+  }
+  .nav-cta:hover { background: var(--blue-deep); text-decoration: none; }
+  @media (max-width: 720px) {
+    .nav-links a:not(.nav-cta) { display: none; }
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    padding: 84px 0 40px;
+    overflow: hidden;
+  }
+  /* The spec's own 12-column layout grid, as faint guides */
+  .hero::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      repeating-linear-gradient(to right,
+        transparent 0, transparent calc(100%/12 - 1px),
+        rgba(50,100,214,.055) calc(100%/12 - 1px),
+        rgba(50,100,214,.055) calc(100%/12));
+    mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 95%);
+    pointer-events: none;
+  }
+  .hero .wrap { position: relative; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--mono); font-size: 12px; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--blue-deep);
+  }
+  .eyebrow .pill {
+    background: #fff; border: 1px solid var(--line);
+    padding: 2px 10px; border-radius: 999px; letter-spacing: .08em;
+    color: var(--ink-soft);
+  }
+  h1 {
+    font-family: var(--disp);
+    font-size: clamp(44px, 7vw, 78px);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    margin: 22px 0 22px;
+  }
+  h1 .host { color: var(--blue); }
+  .lede {
+    font-size: 19px; color: var(--ink-soft); max-width: 58ch; margin-bottom: 34px;
+  }
+  .lede strong { color: var(--ink); font-weight: 600; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-weight: 600; font-size: 15.5px;
+    padding: 12px 22px; border-radius: 999px;
+    border: 1px solid transparent;
+    transition: transform .12s ease, background .15s ease, border-color .15s ease;
+  }
+  .btn:hover { text-decoration: none; transform: translateY(-1px); }
+  .btn-primary { background: var(--blue); color: #fff; }
+  .btn-primary:hover { background: var(--blue-deep); }
+  .btn-ghost {
+    background: #fff; color: var(--ink); border-color: var(--line);
+  }
+  .btn-ghost:hover { border-color: var(--ink-faint); }
+  .btn .arrow { transition: transform .15s ease; }
+  .btn:hover .arrow { transform: translateX(3px); }
+
+  /* ---------- Signature demo: document → dashboard ---------- */
+  .demo { padding: 46px 0 30px; }
+  .demo-frame {
+    display: grid;
+    grid-template-columns: minmax(0,10fr) auto minmax(0,11fr);
+    gap: 0;
+    align-items: stretch;
+    border-radius: 20px;
+  }
+  .pane {
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(14,22,38,.05), 0 12px 32px -12px rgba(14,22,38,.14);
+  }
+  .pane-title {
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--mono); font-size: 11.5px; font-weight: 600;
+    letter-spacing: .1em; text-transform: uppercase;
+    padding: 12px 18px;
+  }
+
+  /* Left: the document */
+  .doc { background: var(--codebg); border: 1px solid var(--codeline); }
+  .doc .pane-title { color: #93A5C8; border-bottom: 1px solid var(--codeline); }
+  .doc .pane-title .who { color: var(--code-str); }
+  .doc pre {
+    font-family: var(--mono); font-size: 12.8px; line-height: 1.62;
+    color: #C7D3EC; padding: 18px 20px 22px; overflow-x: auto;
+    tab-size: 2;
+  }
+  .k { color: var(--code-key); }
+  .s { color: var(--code-str); }
+  .n { color: var(--code-num); }
+  .p { color: var(--code-punct); }
+
+  /* Spine between the panes */
+  .spine {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 10px; padding: 0 18px; min-width: 118px;
+  }
+  .spine .step {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 600;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--ink-soft);
+    background: #fff; border: 1px solid var(--line);
+    padding: 5px 12px; border-radius: 999px; white-space: nowrap;
+  }
+  .spine .flow {
+    width: 1px; height: 26px;
+    background: linear-gradient(to bottom, var(--line), var(--blue));
+  }
+  .spine .tip { color: var(--blue); font-size: 15px; line-height: 1; }
+
+  /* Right: the rendered report */
+  .report { background: var(--panel); border: 1px solid var(--line); display: flex; flex-direction: column; }
+  .report .pane-title { color: var(--ink-faint); border-bottom: 1px solid var(--line); }
+  .report .pane-title .who { color: var(--blue-deep); }
+  .report-body { padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+  .report-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .report-head h3 { font-family: var(--disp); font-size: 19px; font-weight: 700; letter-spacing: -0.01em; }
+  .chip {
+    font-family: var(--mono); font-size: 11px; color: var(--ink-soft);
+    border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px;
+    background: var(--paper); white-space: nowrap;
+  }
+  .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .metric {
+    border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+    background: linear-gradient(to bottom, #fff, #FAFBFE);
+  }
+  .metric .label { font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-faint); }
+  .metric .value { font-family: var(--disp); font-size: 25px; font-weight: 700; letter-spacing: -0.02em; margin-top: 2px; }
+  .metric .delta { font-family: var(--mono); font-size: 11.5px; color: var(--teal); font-weight: 600; }
+
+  .chart { border: 1px solid var(--line); border-radius: 10px; padding: 14px 14px 10px; }
+  .chart .chart-title { font-size: 12px; font-weight: 600; color: var(--ink-soft); margin-bottom: 12px; }
+  .bars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; align-items: end; height: 118px; padding: 0 4px; }
+  .bar { display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
+  .bar i {
+    display: block; width: 100%; max-width: 46px; border-radius: 5px 5px 2px 2px;
+    transform-origin: bottom; animation: grow .8s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .bar:nth-child(1) i { height: 92%; background: var(--blue);  animation-delay: .15s; }
+  .bar:nth-child(2) i { height: 68%; background: var(--teal);  animation-delay: .27s; }
+  .bar:nth-child(3) i { height: 51%; background: var(--amber); animation-delay: .39s; }
+  .bar:nth-child(4) i { height: 34%; background: var(--red);   animation-delay: .51s; }
+  .bar b { font-family: var(--mono); font-size: 10.5px; font-weight: 500; color: var(--ink-faint); }
+  @keyframes grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+
+  .mini-table { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; font-size: 12.5px; }
+  .mini-table .row { display: grid; grid-template-columns: 1.4fr 1fr 1fr; padding: 8px 14px; border-top: 1px solid var(--line); }
+  .mini-table .row:first-child { border-top: 0; background: var(--paper); font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); }
+  .mini-table .num { text-align: right; font-family: var(--mono); font-size: 12px; }
+  .badge { display: inline-block; font-family: var(--mono); font-size: 10.5px; padding: 1px 8px; border-radius: 999px; }
+  .badge.open { background: #FEF3E2; color: #B45309; }
+  .badge.done { background: #E4F5F0; color: #0E7C6E; }
+
+  .demo-caption {
+    text-align: center; font-size: 14px; color: var(--ink-soft);
+    max-width: 62ch; margin: 26px auto 0;
+  }
+  .demo-caption code {
+    font-family: var(--mono); font-size: 12.5px; background: #fff;
+    border: 1px solid var(--line); border-radius: 6px; padding: 1px 7px;
+  }
+
+  @media (max-width: 900px) {
+    .demo-frame { grid-template-columns: 1fr; gap: 0; }
+    .spine { flex-direction: row; padding: 16px 0; min-width: 0; }
+    .spine .flow { width: 26px; height: 1px; background: linear-gradient(to right, var(--line), var(--blue)); }
+    .spine .tip { transform: rotate(90deg); }
+  }
+
+  /* ---------- Sections ---------- */
+  .section { padding: 84px 0; }
+  .section-eyebrow {
+    font-family: var(--mono); font-size: 12px; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--blue-deep);
+    margin-bottom: 14px;
+  }
+  .section h2 {
+    font-family: var(--disp); font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700; letter-spacing: -0.025em; line-height: 1.12;
+    max-width: 24ch; margin-bottom: 16px;
+  }
+  .section .sub { color: var(--ink-soft); max-width: 62ch; font-size: 17px; }
+
+  /* Pipeline */
+  .pipeline {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+    margin-top: 44px; counter-reset: step;
+  }
+  .stage {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 20px 20px 22px;
+    position: relative;
+  }
+  .stage::after {
+    content: "→"; position: absolute; right: -15px; top: 50%;
+    transform: translateY(-50%); color: var(--ink-faint); font-size: 16px;
+    z-index: 1;
+  }
+  .stage:last-child::after { content: none; }
+  .stage .who {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 600;
+    letter-spacing: .12em; text-transform: uppercase; margin-bottom: 10px;
+    display: inline-block; padding: 3px 10px; border-radius: 999px;
+  }
+  .who.model { background: #EAF0FD; color: var(--blue-deep); }
+  .who.host  { background: #E9F6F4; color: #0E7C6E; }
+  .stage h4 { font-family: var(--disp); font-size: 17px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.01em; }
+  .stage p { font-size: 13.5px; color: var(--ink-soft); line-height: 1.55; }
+  @media (max-width: 900px) {
+    .pipeline { grid-template-columns: 1fr 1fr; }
+    .stage:nth-child(2)::after { content: none; }
+  }
+  @media (max-width: 560px) {
+    .pipeline { grid-template-columns: 1fr; }
+    .stage::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -16px; transform: translateX(-50%); }
+    .stage:nth-child(2)::after { content: "↓"; }
+    .stage:last-child::after { content: none; }
+  }
+
+  /* Anatomy */
+  .anatomy { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 44px; }
+  .part {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 20px; transition: border-color .15s ease, transform .15s ease;
+  }
+  .part:hover { border-color: var(--blue); transform: translateY(-2px); }
+  .part code {
+    font-family: var(--mono); font-size: 12.5px; font-weight: 600; color: var(--blue-deep);
+    background: #EAF0FD; padding: 2px 9px; border-radius: 6px;
+  }
+  .part h4 { font-family: var(--disp); font-size: 16.5px; font-weight: 700; margin: 12px 0 5px; letter-spacing: -0.01em; }
+  .part p { font-size: 13.5px; color: var(--ink-soft); line-height: 1.55; }
+  @media (max-width: 900px) { .anatomy { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .anatomy { grid-template-columns: 1fr; } }
+
+  /* Conformance */
+  .classes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 44px; }
+  .cls {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 24px; display: flex; flex-direction: column;
+  }
+  .cls.featured { border-color: var(--blue); box-shadow: 0 8px 28px -12px rgba(50,100,214,.35); }
+  .cls .tier {
+    font-family: var(--disp); font-size: 34px; font-weight: 800; letter-spacing: -0.02em;
+    color: var(--blue);
+  }
+  .cls h4 { font-family: var(--disp); font-size: 18px; font-weight: 700; margin: 4px 0 10px; }
+  .cls p { font-size: 14px; color: var(--ink-soft); flex: 1; }
+  .cls .adds {
+    font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-faint); margin-top: 16px;
+    padding-top: 14px; border-top: 1px dashed var(--line);
+  }
+  @media (max-width: 820px) { .classes { grid-template-columns: 1fr; } }
+
+  /* Denied strip */
+  .denied {
+    background: var(--codebg); color: #B8C5E4;
+    padding: 68px 0; border-top: 1px solid var(--codeline);
+  }
+  .denied .section-eyebrow { color: var(--code-str); }
+  .denied h2 { color: #fff; font-family: var(--disp); font-size: clamp(26px, 3.6vw, 36px); font-weight: 700; letter-spacing: -0.02em; max-width: 28ch; margin-bottom: 10px; }
+  .denied .sub { color: #93A5C8; max-width: 60ch; font-size: 16px; }
+  .tokens { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+  .tok {
+    font-family: var(--mono); font-size: 13px;
+    border: 1px solid var(--codeline); border-radius: 8px;
+    padding: 7px 13px; color: #8FA1C4;
+    display: inline-flex; gap: 9px; align-items: center;
+    text-decoration: line-through; text-decoration-color: var(--red); text-decoration-thickness: 1.5px;
+  }
+  .tok::before { content: "✕"; color: var(--red); text-decoration: none; font-size: 11px; }
+
+  /* Footer */
+  footer { border-top: 1px solid var(--line); padding: 44px 0 60px; }
+  .foot {
+    display: flex; flex-wrap: wrap; gap: 28px;
+    align-items: flex-start; justify-content: space-between;
+  }
+  .foot .schema-id { margin-top: 10px; font-size: 13px; color: var(--ink-soft); }
+  .foot .schema-id code {
+    display: inline-block; margin-top: 6px;
+    font-family: var(--mono); font-size: 12px; background: #fff;
+    border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px;
+  }
+  .foot-links { display: flex; gap: 40px; flex-wrap: wrap; }
+  .foot-links div { display: flex; flex-direction: column; gap: 8px; }
+  .foot-links b {
+    font-family: var(--mono); font-size: 11px; font-weight: 600;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint);
+    margin-bottom: 2px;
+  }
+  .foot-links a { font-size: 14px; color: var(--ink-soft); }
+  .foot-links a:hover { color: var(--ink); }
+  .colophon { margin-top: 36px; font-size: 12.5px; color: var(--ink-faint); }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .bar i { animation: none; }
+    .btn:hover, .part:hover { transform: none; }
+    .reveal { opacity: 1 !important; transform: none !important; }
+  }
+
+  /* Scroll reveal (progressive enhancement) */
+  .reveal { opacity: 0; transform: translateY(14px); transition: opacity .5s ease, transform .5s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  .no-js .reveal { opacity: 1; transform: none; }
+</style>
 </head>
-<body>
-  <main>
-    <p class="eyebrow">AI Reporting Specification</p>
-    <h1>AIRspec</h1>
-    <p class="lead">A declarative, safety-first JSON format for AI-generated dynamic reports. The AI defines the report; your trusted application renders it.</p>
-    <nav aria-label="AIRspec resources">
-      <a href="AIRspec.md">Read the specification</a>
-      <a href="schema/1.0/airspec.schema.json">JSON Schema 1.0</a>
-      <a href="samples/">Samples</a>
+<body class="no-js">
+<script>document.body.classList.remove('no-js');</script>
+
+<nav class="nav" aria-label="Main">
+  <div class="wrap nav-inner">
+    <a class="wordmark" href="/"><span class="air">AIR</span>spec</a>
+    <div class="nav-links">
+      <a href="https://github.com/bzalk/AIRspec/blob/main/AIRspec.md">Specification</a>
+      <a href="/schema/1.0/airspec.schema.json">Schema</a>
+      <a href="https://github.com/bzalk/AIRspec/tree/main/samples">Examples</a>
       <a href="https://github.com/bzalk/AIRspec">GitHub</a>
-    </nav>
-    <footer>Current draft: 1.0. Canonical schema ID: <code>https://airspec.dev/schema/1.0/airspec.schema.json</code></footer>
-  </main>
+      <a class="nav-cta" href="https://github.com/bzalk/AIRspec/blob/main/AIRspec.md">Read the spec</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">AI Reporting Specification <span class="pill">Draft 1.0</span></span>
+    <h1>Declare the report.<br><span class="host">Trust the host.</span></h1>
+    <p class="lede">
+      AIRspec is a portable JSON format for AI-generated dashboards and reports.
+      A model writes the document; your application validates and renders it with trusted code.
+      <strong>Nothing the model produces is ever executed.</strong>
+    </p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="https://github.com/bzalk/AIRspec/blob/main/AIRspec.md">Read the specification <span class="arrow">→</span></a>
+      <a class="btn btn-ghost" href="https://github.com/bzalk/AIRspec/tree/main/samples">View examples</a>
+      <a class="btn btn-ghost" href="/schema/1.0/airspec.schema.json">JSON Schema</a>
+      <a class="btn btn-ghost" href="https://github.com/bzalk/AIRspec">GitHub</a>
+    </div>
+  </div>
+</header>
+
+<section class="demo" aria-label="How AIRspec works, at a glance">
+  <div class="wrap">
+    <div class="demo-frame">
+
+      <div class="pane doc" aria-label="An AIRspec document">
+        <div class="pane-title"><span>report.airspec.json</span><span class="who">written by the model</span></div>
+<pre aria-hidden="true">{
+  <span class="k">"airspec"</span><span class="p">:</span> <span class="s">"1.0"</span><span class="p">,</span>
+  <span class="k">"meta"</span><span class="p">:</span> { <span class="k">"title"</span><span class="p">:</span> <span class="s">"Sales Overview"</span> }<span class="p">,</span>
+  <span class="k">"datasets"</span><span class="p">:</span> [{
+    <span class="k">"id"</span><span class="p">:</span> <span class="s">"revenueByRegion"</span><span class="p">,</span>
+    <span class="k">"source"</span><span class="p">:</span> <span class="s">"orders"</span><span class="p">,</span>
+    <span class="k">"operation"</span><span class="p">:</span> <span class="s">"aggregate"</span><span class="p">,</span>
+    <span class="k">"dimensions"</span><span class="p">:</span> [{ <span class="k">"field"</span><span class="p">:</span> <span class="s">"region"</span> }]<span class="p">,</span>
+    <span class="k">"metrics"</span><span class="p">:</span> [{ <span class="k">"operation"</span><span class="p">:</span> <span class="s">"sum"</span><span class="p">,</span>
+                  <span class="k">"field"</span><span class="p">:</span> <span class="s">"total"</span><span class="p">,</span>
+                  <span class="k">"alias"</span><span class="p">:</span> <span class="s">"revenue"</span> }]
+  }]<span class="p">,</span>
+  <span class="k">"layout"</span><span class="p">:</span> { <span class="k">"type"</span><span class="p">:</span> <span class="s">"grid"</span><span class="p">,</span> <span class="k">"children"</span><span class="p">:</span> [
+    { <span class="k">"type"</span><span class="p">:</span> <span class="s">"metric"</span><span class="p">,</span> <span class="k">"valueField"</span><span class="p">:</span> <span class="s">"revenue"</span> }<span class="p">,</span>
+    { <span class="k">"type"</span><span class="p">:</span> <span class="s">"chart"</span><span class="p">,</span>
+      <span class="k">"graphic"</span><span class="p">:</span> {
+        <span class="k">"mark"</span><span class="p">:</span> <span class="s">"bar"</span><span class="p">,</span>
+        <span class="k">"encoding"</span><span class="p">:</span> {
+          <span class="k">"x"</span><span class="p">:</span> { <span class="k">"field"</span><span class="p">:</span> <span class="s">"region"</span> }<span class="p">,</span>
+          <span class="k">"y"</span><span class="p">:</span> { <span class="k">"field"</span><span class="p">:</span> <span class="s">"revenue"</span> } } } }
+  ]}
+}</pre>
+      </div>
+
+      <div class="spine" aria-hidden="true">
+        <span class="step">validate</span>
+        <span class="flow"></span>
+        <span class="step">render</span>
+        <span class="tip">▶</span>
+      </div>
+
+      <div class="pane report" aria-label="The report your application renders">
+        <div class="pane-title"><span>your application</span><span class="who">trusted renderer</span></div>
+        <div class="report-body">
+          <div class="report-head">
+            <h3>Sales Overview</h3>
+            <span class="chip">Year to date ▾</span>
+          </div>
+          <div class="metrics">
+            <div class="metric">
+              <div class="label">Revenue</div>
+              <div class="value">$1.28M</div>
+              <div class="delta">▲ 12.4%</div>
+            </div>
+            <div class="metric">
+              <div class="label">Orders</div>
+              <div class="value">4,213</div>
+              <div class="delta">▲ 6.1%</div>
+            </div>
+          </div>
+          <div class="chart">
+            <div class="chart-title">Revenue by region</div>
+            <div class="bars">
+              <div class="bar"><i></i><b>West</b></div>
+              <div class="bar"><i></i><b>East</b></div>
+              <div class="bar"><i></i><b>North</b></div>
+              <div class="bar"><i></i><b>South</b></div>
+            </div>
+          </div>
+          <div class="mini-table">
+            <div class="row"><span>Order</span><span>Status</span><span class="num">Total</span></div>
+            <div class="row"><span>ORD-8841</span><span><span class="badge open">Open</span></span><span class="num">$12,400</span></div>
+            <div class="row"><span>ORD-8836</span><span><span class="badge done">Delivered</span></span><span class="num">$8,150</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <p class="demo-caption">
+      The left side is the entire artifact the AI produces — declarative JSON, validated against a published schema.
+      The right side is yours: trusted components, your data broker, your authorization. Charts use
+      <code>AIRMark</code>, the spec's built-in mark-and-encoding grammar.
+    </p>
+  </div>
+</section>
+
+<section class="section" id="rule">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="section-eyebrow">The one rule</div>
+      <h2>The AI produces configuration. Your app owns all execution.</h2>
+      <p class="sub">
+        An AIRspec document cannot call an API, reference a URL, embed a credential, run a formula,
+        or inject HTML. Those capabilities are structurally absent from the format — not merely discouraged.
+        Every document passes five validation layers before a single pixel renders.
+      </p>
+    </div>
+    <div class="pipeline reveal">
+      <div class="stage">
+        <span class="who model">Model</span>
+        <h4>Writes the document</h4>
+        <p>Any model, any provider. Structured output against the AIRspec JSON Schema, guided by your Source Catalog.</p>
+      </div>
+      <div class="stage">
+        <span class="who host">Your app</span>
+        <h4>Validates it</h4>
+        <p>Schema, semantic, authorization, and AIRMark checks. Machine-readable errors let the model self-correct.</p>
+      </div>
+      <div class="stage">
+        <span class="who host">Your app</span>
+        <h4>Renders it</h4>
+        <p>Trusted components interpret the layout tree. One broken component never takes down the report.</p>
+      </div>
+      <div class="stage">
+        <span class="who host">Your app</span>
+        <h4>Fetches the data</h4>
+        <p>A server-side data broker executes stored datasets with the viewer's authorization. Credentials never leave the server.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="anatomy" style="padding-top:0">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="section-eyebrow">Anatomy of a document</div>
+      <h2>Six top-level parts describe any report.</h2>
+      <p class="sub">Every element is declarative, allowlisted, and independently validated.</p>
+    </div>
+    <div class="anatomy reveal">
+      <div class="part"><code>meta</code><h4>Metadata</h4><p>Title, description, and tags for the report as users see it.</p></div>
+      <div class="part"><code>parameters</code><h4>Parameters</h4><p>Date ranges, selects, and toggles users adjust at run time — validated server-side.</p></div>
+      <div class="part"><code>datasets</code><h4>Datasets</h4><p>Logical data requests by source and field name. Never a URL, never a query string.</p></div>
+      <div class="part"><code>layout</code><h4>Layout</h4><p>A responsive 12-column grid of trusted components — including charts, described in AIRMark, the spec's own mark-and-encoding grammar.</p></div>
+      <div class="part"><code>theme</code><h4>Theme</h4><p>Palette, density, and locale preferences — advisory, and always subordinate to your app's accessibility overrides.</p></div>
+      <div class="part"><code>interactions</code><h4>Interactions</h4><p>Drilldowns, navigation to registered routes, and exports — from a fixed action vocabulary.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="classes" style="padding-top:0">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="section-eyebrow">Conformance classes</div>
+      <h2>Adopt it in three steps.</h2>
+      <p class="sub">Each class is a superset of the last, so a Class A host can grow into AVI without breaking a single stored document.</p>
+    </div>
+    <div class="classes reveal">
+      <div class="cls">
+        <span class="tier">A</span>
+        <h4>Core</h4>
+        <p>Layout, text, metrics, tables, filters, and datasets. A complete working reporting system with no charting at all.</p>
+        <span class="adds">The foundation</span>
+      </div>
+      <div class="cls featured">
+        <span class="tier">AV</span>
+        <h4>Visualization</h4>
+        <p>Everything in Core plus the AIRMark chart grammar — bars, lines, areas, arcs, layers, facets, and tooltips.</p>
+        <span class="adds">Adds charts</span>
+      </div>
+      <div class="cls">
+        <span class="tier">AVI</span>
+        <h4>Interactive</h4>
+        <p>Everything in Visualization plus cross-component interactions: chart-to-filter drilldowns, record navigation, exports.</p>
+        <span class="adds">Adds interactions</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="denied">
+  <div class="wrap reveal">
+    <div class="section-eyebrow">Security by construction</div>
+    <h2>Structurally absent, not merely discouraged.</h2>
+    <p class="sub">Validators reject any document containing executable or addressable surface. There is no flag to turn these on.</p>
+    <div class="tokens" aria-label="Capabilities that cannot appear in an AIRspec document">
+      <span class="tok">eval()</span>
+      <span class="tok">data.url</span>
+      <span class="tok">&lt;script&gt;</span>
+      <span class="tok">credentials</span>
+      <span class="tok">fetch()</span>
+      <span class="tok">SELECT *</span>
+      <span class="tok">${expression}</span>
+      <span class="tok">href="https://…"</span>
+      <span class="tok">dangerouslySetInnerHTML</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a class="wordmark" href="/"><span class="air">AIR</span>spec</a>
+        <div class="schema-id">
+          Current draft: 1.0 · Canonical schema ID<br>
+          <code>https://airspec.dev/schema/1.0/airspec.schema.json</code>
+        </div>
+      </div>
+      <div class="foot-links">
+        <div>
+          <b>Specification</b>
+          <a href="https://github.com/bzalk/AIRspec/blob/main/AIRspec.md">Read the spec</a>
+          <a href="/schema/1.0/airspec.schema.json">JSON Schema</a>
+        </div>
+        <div>
+          <b>Learn</b>
+          <a href="https://github.com/bzalk/AIRspec/tree/main/samples">Examples</a>
+          <a href="https://github.com/bzalk/AIRspec/tree/main/adapters">Adapters</a>
+        </div>
+        <div>
+          <b>Project</b>
+          <a href="https://github.com/bzalk/AIRspec">GitHub</a>
+          <a href="https://github.com/bzalk/AIRspec/blob/main/LICENSE">MIT License</a>
+        </div>
+      </div>
+    </div>
+    <p class="colophon">
+      AIRspec — declare the report, trust the host. This page's chart colors are the spec's own §18 example palette,
+      and the hero guides are its 12-column layout grid.
+    </p>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal — progressive enhancement, honors reduced motion.
+  (function () {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('in'); });
+      return;
+    }
+    if (!('IntersectionObserver' in window)) return;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+  })();
+</script>
+
 </body>
 </html>
