@@ -1,0 +1,22 @@
+{
+  "airspec": "1.1",
+  "meta": { "title": "Unknown binding parameter" },
+  "datasets": [
+    {
+      "id": "ordersList",
+      "source": "orders",
+      "operation": "list",
+      "fields": ["order_id"],
+      "bindings": {
+        "sort": {
+          "parameter": "missingSortMode",
+          "cases": [
+            { "equals": "name", "value": [{ "field": "order_id", "direction": "ascending" }] }
+          ],
+          "default": [{ "field": "order_id", "direction": "ascending" }]
+        }
+      }
+    }
+  ],
+  "layout": { "id": "root", "type": "text", "text": "Invalid" }
+}

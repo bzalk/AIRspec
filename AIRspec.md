@@ -4,11 +4,11 @@
 
 *A declarative, safety-first specification for AI-generated dynamic reports.*
 
-**Version:** 1.0.0-draft
+**Version:** 1.1.0-draft
 **Status:** Draft
 **License:** MIT (recommended for adopters; choose your own)
 **Media type:** `application/airspec+json`
-**Schema ID convention:** `https://airspec.dev/schema/1.0/airspec.schema.json`
+**Schema ID convention:** `https://airspec.dev/schema/1.1/airspec.schema.json`
 
 ---
 
@@ -87,7 +87,7 @@ An AIRspec Document is a single JSON object.
 
 ```json
 {
-  "airspec": "1.0",
+  "airspec": "1.1",
   "meta": {
     "title": "Quarterly Sales Overview",
     "description": "Revenue and order activity for the selected period.",
@@ -105,7 +105,7 @@ An AIRspec Document is a single JSON object.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `airspec` | string | **MUST** | Specification version this document targets, e.g. `"1.0"`. |
+| `airspec` | string | **MUST** | Specification version this document targets, e.g. `"1.1"`. |
 | `meta` | object | **MUST** | Report metadata. `meta.title` is REQUIRED; `description`, `tags`, and Host-declared metadata extensions are OPTIONAL. |
 | `datasets` | array | **MUST** | Zero or more Dataset objects (§7). MAY be empty for static/text-only reports. |
 | `layout` | object | **MUST** | The root Component node (§8). |
@@ -253,6 +253,7 @@ A Dataset is a declarative request against exactly one Source. Datasets contain 
 | `filters` | array | MAY | Filter objects (§7.4). |
 | `sort` | array | MAY | Sort objects (§7.5). |
 | `limit` | integer | MAY | Row cap; the Host clamps to catalog limits. |
+| `bindings` | object | MAY | Typed parameter switches for approved Dataset properties (§7.6). AIRspec 1.1. |
 
 ### 7.2 `list` datasets
 
@@ -332,11 +333,63 @@ Nesting depth of boolean groups MUST NOT exceed 3.
 
 `field` references a source field (for `list`) or an output alias (for `aggregate`). `direction` is `ascending` or `descending`.
 
-### 7.6 `distinct` datasets
+### 7.6 Reactive dataset bindings
+
+AIRspec 1.1 allows a validated parameter to select among fully declared alternatives for an approved dataset property. This supports sorting, slicing, metric selection, time granularity, Top-N, and related query interactions without duplicating datasets or constructing requests dynamically.
+
+```json
+{
+  "id": "letterFrequency",
+  "source": "alphabet",
+  "operation": "aggregate",
+  "dimensions": [{ "field": "letter", "alias": "category" }],
+  "metrics": [{ "operation": "average", "field": "frequency", "alias": "value" }],
+  "bindings": {
+    "sort": {
+      "parameter": "sortMode",
+      "cases": [
+        {
+          "equals": "frequency",
+          "value": [{ "field": "value", "direction": "descending" }]
+        },
+        {
+          "equals": "alphabetical",
+          "value": [{ "field": "category", "direction": "ascending" }]
+        }
+      ],
+      "default": [{ "field": "value", "direction": "descending" }]
+    }
+  }
+}
+```
+
+The allowed binding targets are:
+
+| Target | Dataset operation | Bound value |
+| --- | --- | --- |
+| `fields` | `list` | Complete returned-field array. |
+| `field` | `distinct` | Distinct source field. |
+| `dimensions` | `aggregate` | Complete dimension array, including aliases and time units. |
+| `metrics` | `aggregate` | Complete metric array, including stable aliases. |
+| `filters` | any | Complete filter array. Existing direct `filter.parameter` bindings remain preferred for changing filter values. |
+| `sort` | `list`, `aggregate` | Complete sort array. |
+| `limit` | `list`, `aggregate` | Positive integer row limit. |
+
+`id`, `source`, `operation`, `pagination`, credentials, endpoints, and extension properties are not bindable.
+
+Each binding is a parameter switch with `parameter`, `cases`, and `default`. The referenced parameter MUST be a boolean or a `select` parameter with static options. Every case has a unique literal `equals` value and a typed `value`. Cases MUST cover every static option. The REQUIRED `default` is used when the parameter is absent or cleared.
+
+A Dataset MUST NOT declare both a literal property and a binding for that property. A binding replaces its property completely; values are never merged, appended, interpolated, or patched. Every case and default MUST independently pass schema, semantic, and authorization validation.
+
+The Dataset's **stable output contract** is the intersection of the output field names produced by every possible resolved case. Every field referenced by a bound Component MUST be present in that stable output contract. Structural alternatives SHOULD use stable aliases such as `category` and `value` so Components remain valid across state changes.
+
+Hosts MUST resolve bindings before execution, include all affecting parameters in the Dataset cache key, re-check authorization for the resolved request, and reject stale responses from older parameter-state revisions.
+
+### 7.7 `distinct` datasets
 
 Return distinct values of a single filterable field, primarily to back select parameters. Properties: `field` (MUST), plus common properties.
 
-### 7.7 Execution contract
+### 7.8 Execution contract
 
 At run time the client submits only: document version reference, dataset `id`, validated parameter values, and pagination. The Data Broker loads the stored dataset definition, applies authorization, executes with server-held credentials, and returns rows shaped as an array of flat JSON objects keyed by field name or alias:
 
@@ -476,7 +529,27 @@ Binds a dataset to an AIRMark visualization (§10).
 }
 ```
 
-`datasetId` and `graphic` are REQUIRED.
+`datasetId` is REQUIRED. A chart MUST declare exactly one of `graphic` or `graphicBinding`.
+
+AIRspec 1.1 `graphicBinding` lets a boolean or static `select` parameter choose among complete AIRMark graphics:
+
+```json
+{
+  "id": "frequencyChart",
+  "type": "chart",
+  "datasetId": "letterFrequency",
+  "graphicBinding": {
+    "parameter": "chartMode",
+    "cases": [
+      { "equals": "bar", "value": { "mark": "bar", "encoding": {} } },
+      { "equals": "line", "value": { "mark": "line", "encoding": {} } }
+    ],
+    "default": { "mark": "bar", "encoding": {} }
+  }
+}
+```
+
+Every case and default MUST independently pass AIRMark validation and MAY reference only fields in the Dataset's stable output contract (§7.6). A graphic binding replaces the whole graphic; it cannot patch properties or introduce data, expressions, URLs, or external runtime configuration.
 
 ### 9.6 `filterBar`
 
@@ -662,7 +735,7 @@ The document `theme` expresses report-level preferences. It is advisory: Host an
 
 ## 13. Interactions and Actions
 
-Interactions connect an event on one component to an approved action, declared at the document level.
+Interactions connect an event on one component to one or more approved actions, declared at the document level.
 
 ```json
 {
@@ -678,7 +751,9 @@ Interactions connect an event on one component to an approved action, declared a
 
 ### 13.1 Events
 
-`select` (chart mark selection), `rowClick` (table row), `click` (metric/text), `change` (parameter).
+`select` (chart mark or interval selection), `selectionClear` (a chart selection is cleared), `rowClick` (table row), `click` (metric/text), `change` (parameter control).
+
+For `select` and `selectionClear`, `on.selection` SHOULD identify the selection declared in the source graphic. If the graphic declares more than one selection, `on.selection` is REQUIRED.
 
 ### 13.2 Actions
 
@@ -691,7 +766,43 @@ Interactions connect an event on one component to an approved action, declared a
 | `export` | `datasetId`, `format: "csv" \| "xlsx"` | Executed via the Data Broker with viewer authorization. |
 | `refresh` | optional `datasetIds` | |
 
-Hosts MUST validate that all referenced components, parameters, datasets, fields, and route IDs exist and are permitted. Documents MUST NOT express navigation as URLs under any property name.
+AIRspec 1.1 `valueFrom` supports three transfer modes:
+
+```json
+{ "field": "region", "mode": "scalar" }
+{ "field": "region", "mode": "values" }
+{ "field": "created_at", "mode": "range" }
+```
+
+`scalar` is the default and transfers one value. `values` transfers de-duplicated selected values as an array and MUST target a compatible `multiSelect` parameter. `range` transfers `{ "start": ..., "end": ... }` from an interval selection and MUST target a compatible date-range or Host-declared numeric-range parameter. The event payload, selected field, transfer mode, and target parameter MUST be type-compatible.
+
+An Interaction MUST declare exactly one of the legacy `action` property or an AIRspec 1.1 `actions` array of one to eight Actions:
+
+```json
+{
+  "id": "drillAndRefresh",
+  "on": {
+    "component": "salesChart",
+    "event": "select",
+    "selection": "pickedRegion"
+  },
+  "actions": [
+    {
+      "type": "setParameter",
+      "parameter": "region",
+      "valueFrom": { "field": "region", "mode": "scalar" }
+    },
+    { "type": "clearParameter", "parameter": "account" },
+    { "type": "refresh", "datasetIds": ["accountDetails"] }
+  ]
+}
+```
+
+Every `setParameter` action MUST declare exactly one of `value` or `valueFrom`. Hosts MUST validate all parameter mutations in an `actions` array before changing state, then commit those mutations atomically. Affected bindings and filters resolve after that single state commit, and each affected Dataset executes at most once for the new state revision. Non-state actions execute in declaration order after the state commit. A failed action MUST produce a component-scoped error and MUST NOT leave partially validated parameter state.
+
+Hosts MUST derive reactive dependencies from filter parameter references, Dataset bindings, graphic bindings, visibility conditions, and interaction actions. Dataset cache keys MUST include every parameter affecting the resolved request plus viewer scope. Older asynchronous responses MUST NOT replace results from a newer state revision.
+
+Hosts MUST validate that all referenced components, selections, parameters, datasets, fields, source IDs, and route IDs exist and are permitted. Documents MUST NOT express navigation as URLs under any property name.
 
 ---
 
@@ -702,10 +813,10 @@ A document MUST pass every layer below before it is stored as a renderable versi
 | Layer | Name | Validates |
 | --- | --- | --- |
 | 1 | **Schema** | Structure against the AIRspec JSON Schema: required properties, types, enums, ID grammar, array caps, rejection of unknown non-`x-` properties. |
-| 2 | **Semantic** | Sources exist; fields exist and permit the requested filter/sort/group/aggregate; component `datasetId`s resolve; every bound field/alias is present in its dataset's output; parameter references resolve; IDs unique; interaction targets exist. |
-| 3 | **Authorization** | Tenant/user may access each source and field; restricted fields absent; scopes applied; limits within authorization ceilings. Performed at generation **and re-checked at every execution**. |
-| 4 | **AIRMark** | Every `graphic` conforms to §10: allowlisted marks/transforms/channels, no data/URL/expression surface, size and complexity caps. |
-| 5 | **Runtime** | Broker responses match declared dataset shape; row/size caps enforced; formatters receive type-compatible values; per-component error isolation. |
+| 2 | **Semantic** | Sources exist; fields exist and permit the requested filter/sort/group/aggregate; every Dataset binding case is valid and covers its parameter options; stable output contracts satisfy all Components; component `datasetId`s resolve; parameter, selection, and interaction references resolve; transfer modes are type-compatible; IDs unique. |
+| 3 | **Authorization** | Tenant/user may access every source, field, operation, and limit in every binding case; restricted fields absent; scopes applied; limits within authorization ceilings. Performed at generation **and re-checked for each resolved request at every execution**. |
+| 4 | **AIRMark** | Every literal `graphic` and every `graphicBinding` case/default conforms to §10: allowlisted marks/transforms/channels, stable output fields only, no data/URL/expression surface, size and complexity caps. |
+| 5 | **Runtime** | Binding resolution is deterministic; reactive work is coalesced per state revision; stale responses are discarded; Broker responses match the resolved dataset shape; row/size caps enforced; formatters receive type-compatible values; per-component error isolation. |
 
 ---
 
@@ -722,6 +833,7 @@ These requirements are normative for every conformance class and MUST NOT be rel
 7. Errors surfaced to clients MUST NOT contain credentials, internal endpoint details, or stack traces.
 8. Hosts MUST maintain an audit trail identifying who generated, published, and executed each document version.
 9. Field-level redaction happens server-side: the Broker MUST strip fields the viewer may not receive, even if a stored document requests them.
+10. Parameter switches select only among fully declared alternatives at the binding points defined by this specification. Hosts MUST NOT generalize them into expressions, templates, arbitrary property paths, JSON Patch, dynamic sources, or dynamic operations.
 
 ---
 
@@ -765,7 +877,7 @@ A Generator conforms if every document it emits validates against the target Hos
 
 ```json
 {
-  "airspec": "1.0",
+  "airspec": "1.1",
   "meta": {
     "title": "Sales Overview",
     "description": "Revenue and order activity for the selected period."
@@ -783,6 +895,19 @@ A Generator conforms if every document it emits validates against the target Hos
       "type": "multiSelect",
       "label": "Region",
       "options": { "type": "fieldValues", "source": "orders", "field": "region" }
+    },
+    {
+      "id": "sortMode",
+      "type": "select",
+      "label": "Chart order",
+      "default": "chronological",
+      "options": {
+        "type": "static",
+        "values": [
+          { "value": "chronological", "label": "Chronological" },
+          { "value": "highestRevenue", "label": "Highest revenue" }
+        ]
+      }
     }
   ],
   "datasets": [
@@ -814,7 +939,22 @@ A Generator conforms if every document it emits validates against the target Hos
       "metrics": [
         { "operation": "sum", "field": "total", "alias": "revenue" }
       ],
-      "sort": [{ "field": "month", "direction": "ascending" }]
+      "bindings": {
+        "sort": {
+          "parameter": "sortMode",
+          "cases": [
+            {
+              "equals": "chronological",
+              "value": [{ "field": "month", "direction": "ascending" }]
+            },
+            {
+              "equals": "highestRevenue",
+              "value": [{ "field": "revenue", "direction": "descending" }]
+            }
+          ],
+          "default": [{ "field": "month", "direction": "ascending" }]
+        }
+      }
     },
     {
       "id": "orderDetails",
@@ -834,7 +974,7 @@ A Generator conforms if every document it emits validates against the target Hos
     "type": "stack",
     "gap": "medium",
     "children": [
-      { "id": "filters", "type": "filterBar", "parameters": ["dateRange", "region"] },
+      { "id": "filters", "type": "filterBar", "parameters": ["dateRange", "region", "sortMode"] },
       {
         "id": "summary",
         "type": "grid",
@@ -932,13 +1072,13 @@ Implementers SHOULD publish a full JSON Schema at the ID convention in the heade
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://airspec.dev/schema/1.0/airspec.schema.json",
+  "$id": "https://airspec.dev/schema/1.1/airspec.schema.json",
   "title": "AIRspec Document",
   "type": "object",
   "required": ["airspec", "meta", "datasets", "layout"],
   "additionalProperties": false,
   "properties": {
-    "airspec": { "const": "1.0" },
+    "airspec": { "const": "1.1" },
     "meta": {
       "type": "object",
       "required": ["title"],

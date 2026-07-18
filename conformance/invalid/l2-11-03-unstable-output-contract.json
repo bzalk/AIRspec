@@ -1,0 +1,48 @@
+{
+  "airspec": "1.1",
+  "meta": { "title": "Unstable output contract" },
+  "parameters": [
+    {
+      "id": "sliceBy",
+      "type": "select",
+      "label": "Slice",
+      "options": {
+        "type": "static",
+        "values": [
+          { "value": "region", "label": "Region" },
+          { "value": "status", "label": "Status" }
+        ]
+      }
+    }
+  ],
+  "datasets": [
+    {
+      "id": "breakdown",
+      "source": "orders",
+      "operation": "aggregate",
+      "metrics": [{ "operation": "count", "alias": "value" }],
+      "bindings": {
+        "dimensions": {
+          "parameter": "sliceBy",
+          "cases": [
+            { "equals": "region", "value": [{ "field": "region", "alias": "category" }] },
+            { "equals": "status", "value": [{ "field": "status", "alias": "statusCategory" }] }
+          ],
+          "default": [{ "field": "region", "alias": "category" }]
+        }
+      }
+    }
+  ],
+  "layout": {
+    "id": "chart",
+    "type": "chart",
+    "datasetId": "breakdown",
+    "graphic": {
+      "mark": "bar",
+      "encoding": {
+        "x": { "field": "category", "type": "nominal" },
+        "y": { "field": "value", "type": "quantitative" }
+      }
+    }
+  }
+}

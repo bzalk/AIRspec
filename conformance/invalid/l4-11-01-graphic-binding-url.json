@@ -1,0 +1,51 @@
+{
+  "airspec": "1.1",
+  "meta": { "title": "Unsafe graphic alternative" },
+  "parameters": [
+    {
+      "id": "chartMode",
+      "type": "select",
+      "label": "Chart",
+      "options": {
+        "type": "static",
+        "values": [{ "value": "bar", "label": "Bar" }]
+      }
+    }
+  ],
+  "datasets": [
+    {
+      "id": "byRegion",
+      "source": "orders",
+      "operation": "aggregate",
+      "dimensions": [{ "field": "region", "alias": "region" }],
+      "metrics": [{ "operation": "count", "alias": "value" }]
+    }
+  ],
+  "layout": {
+    "id": "chart",
+    "type": "chart",
+    "datasetId": "byRegion",
+    "graphicBinding": {
+      "parameter": "chartMode",
+      "cases": [
+        {
+          "equals": "bar",
+          "value": {
+            "mark": { "type": "bar", "href": "https://example.com" },
+            "encoding": {
+              "x": { "field": "region", "type": "nominal" },
+              "y": { "field": "value", "type": "quantitative" }
+            }
+          }
+        }
+      ],
+      "default": {
+        "mark": "bar",
+        "encoding": {
+          "x": { "field": "region", "type": "nominal" },
+          "y": { "field": "value", "type": "quantitative" }
+        }
+      }
+    }
+  }
+}

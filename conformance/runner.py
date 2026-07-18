@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """AIRspec conformance runner.
 
-Runs the fixture suite in manifest.json against the published AIRspec JSON
-Schema (Validation Layer 1) and reports, per case, whether the Layer-1 result
-is consistent with the manifest's expectation.
+Runs the fixture suite in manifest.json against the published, versioned
+AIRspec JSON Schemas (Validation Layer 1) and reports, per case, whether the
+Layer-1 result is consistent with the manifest's expectation.
 
 What this runner proves on its own:
   * Every `accept` case passes the schema.
@@ -35,18 +35,14 @@ import subprocess
 import sys
 
 HERE = pathlib.Path(__file__).resolve().parent
-SCHEMA_CANDIDATES = [
-    HERE.parent / "schema" / "1.0" / "airspec.schema.json",
-    HERE.parent / "schema" / "airspec.schema.json",
-]
+SCHEMA_ROOT = HERE.parent / "schema"
 
 
-def load_schema():
-    for p in SCHEMA_CANDIDATES:
-        if p.exists():
-            return json.loads(p.read_text()), p
-    sys.exit("error: airspec.schema.json not found next to conformance/ "
-             f"(looked in: {', '.join(str(p) for p in SCHEMA_CANDIDATES)})")
+def load_schema(version):
+    path = SCHEMA_ROOT / version / "airspec.schema.json"
+    if not path.exists():
+        sys.exit(f"error: schema for AIRspec {version} not found: {path}")
+    return json.loads(path.read_text()), path
 
 
 def main():
@@ -60,13 +56,23 @@ def main():
     except ImportError:
         sys.exit("error: pip install jsonschema")
 
-    schema, schema_path = load_schema()
-    validator = jsonschema.Draft202012Validator(schema)
     manifest = json.loads((HERE / "manifest.json").read_text())
     catalog = HERE / manifest["catalog"]
     policy = HERE / manifest["policy"]
+    validators = {}
+    schema_paths = {}
 
-    print(f"schema:  {schema_path}")
+    for case in manifest["cases"]:
+        doc = json.loads((HERE / case["file"]).read_text())
+        version = doc.get("airspec")
+        if version not in validators:
+            schema, schema_path = load_schema(version)
+            jsonschema.Draft202012Validator.check_schema(schema)
+            validators[version] = jsonschema.Draft202012Validator(schema)
+            schema_paths[version] = schema_path
+
+    for version, path in sorted(schema_paths.items()):
+        print(f"schema {version}: {path}")
     print(f"catalog: {catalog}")
     print(f"policy:  {policy}")
     print(f"cases:   {len(manifest['cases'])}\n")
@@ -78,6 +84,8 @@ def main():
         layer = case.get("layer")
         doc_path = HERE / case["file"]
         doc = json.loads(doc_path.read_text())
+        version = doc.get("airspec")
+        validator = validators[version]
 
         schema_ok = not list(validator.iter_errors(doc))
 
@@ -113,7 +121,7 @@ def main():
         if status == "FAIL":
             failures.append(cid)
         marker = "x" if status == "FAIL" else "."
-        print(f"[{marker}] {cid:<6} {expect:<7} L{layer or '-'}  {note}")
+        print(f"[{marker}] {cid:<8} v{version:<3} {expect:<7} L{layer or '-'}  {note}")
 
     print()
     if failures:

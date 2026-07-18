@@ -1,0 +1,17 @@
+{
+  "airspec": "1.1",
+  "meta": { "title": "Conflicting actions" },
+  "parameters": [
+    { "id": "active", "type": "boolean", "label": "Active" }
+  ],
+  "datasets": [],
+  "layout": { "id": "message", "type": "text", "text": "Click" },
+  "interactions": [
+    {
+      "id": "conflict",
+      "on": { "component": "message", "event": "click" },
+      "action": { "type": "setParameter", "parameter": "active", "value": true },
+      "actions": [{ "type": "clearParameter", "parameter": "active" }]
+    }
+  ]
+}

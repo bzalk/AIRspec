@@ -1,6 +1,6 @@
 {
-  "airspecVersion": "1.0",
-  "suiteVersion": "1.0.0",
+  "airspecVersions": ["1.0", "1.1"],
+  "suiteVersion": "1.1.0",
   "catalog": "catalog.json",
   "policy": "policy.example.json",
   "semantics": {
@@ -184,6 +184,68 @@
       "expect": "reject",
       "layer": 4,
       "violation": "`calculate` is an expression-bearing transform and is not part of AIRMark."
+    },
+    {
+      "id": "V11-01",
+      "file": "valid/v11-01-reactive-dashboard.json",
+      "expect": "accept",
+      "description": "AIRspec 1.1 reactive dashboard: typed dimension, metric, sort, and limit bindings; graphic binding; atomic actions; selection clear."
+    },
+    {
+      "id": "L1-11-01",
+      "file": "invalid/l1-11-01-literal-and-bound-sort.json",
+      "expect": "reject",
+      "layer": 1,
+      "violation": "Dataset declares both literal `sort` and `bindings.sort`; a binding replaces rather than merges its target."
+    },
+    {
+      "id": "L1-11-02",
+      "file": "invalid/l1-11-02-binding-missing-default.json",
+      "expect": "reject",
+      "layer": 1,
+      "violation": "Parameter switch omits the required fallback `default`."
+    },
+    {
+      "id": "L1-11-03",
+      "file": "invalid/l1-11-03-action-and-actions.json",
+      "expect": "reject",
+      "layer": 1,
+      "violation": "Interaction declares both legacy `action` and atomic `actions`; exactly one is permitted."
+    },
+    {
+      "id": "L2-11-01",
+      "file": "invalid/l2-11-01-binding-parameter-missing.json",
+      "expect": "reject",
+      "layer": 2,
+      "violation": "Dataset binding references undefined parameter `missingSortMode`."
+    },
+    {
+      "id": "L2-11-02",
+      "file": "invalid/l2-11-02-binding-cases-incomplete.json",
+      "expect": "reject",
+      "layer": 2,
+      "violation": "Sort binding omits a case for static parameter option `total`."
+    },
+    {
+      "id": "L2-11-03",
+      "file": "invalid/l2-11-03-unstable-output-contract.json",
+      "expect": "reject",
+      "layer": 2,
+      "violation": "Component references `category`, which is absent from one bound dimension alternative and therefore not in the stable output contract."
+    },
+    {
+      "id": "L2-11-04",
+      "file": "invalid/l2-11-04-incompatible-transfer-mode.json",
+      "expect": "reject",
+      "layer": 2,
+      "violation": "Selection `values` transfer targets a scalar text parameter instead of a compatible multiSelect parameter."
+    },
+    {
+      "id": "L4-11-01",
+      "file": "invalid/l4-11-01-graphic-binding-url.json",
+      "expect": "reject",
+      "layer": 4,
+      "violation": "One graphic-binding alternative contains a URL-valued mark property."
     }
   ]
 }

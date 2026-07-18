@@ -1,0 +1,42 @@
+{
+  "airspec": "1.1",
+  "meta": { "title": "Incompatible selection transfer" },
+  "parameters": [
+    { "id": "region", "type": "text", "label": "Region" }
+  ],
+  "datasets": [
+    {
+      "id": "byRegion",
+      "source": "orders",
+      "operation": "aggregate",
+      "dimensions": [{ "field": "region", "alias": "region" }],
+      "metrics": [{ "operation": "count", "alias": "value" }]
+    }
+  ],
+  "layout": {
+    "id": "chart",
+    "type": "chart",
+    "datasetId": "byRegion",
+    "graphic": {
+      "mark": "bar",
+      "encoding": {
+        "x": { "field": "region", "type": "nominal" },
+        "y": { "field": "value", "type": "quantitative" }
+      },
+      "selections": [
+        { "id": "picked", "type": "point", "on": "click", "fields": ["region"] }
+      ]
+    }
+  },
+  "interactions": [
+    {
+      "id": "transferMany",
+      "on": { "component": "chart", "event": "select", "selection": "picked" },
+      "action": {
+        "type": "setParameter",
+        "parameter": "region",
+        "valueFrom": { "field": "region", "mode": "values" }
+      }
+    }
+  ]
+}

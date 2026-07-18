@@ -63,7 +63,7 @@ These are the load-bearing rules; everything else has implementation freedom.
 
 * **Documents are configuration.** Never `eval`, template-interpolate, or otherwise execute any string from a document. (Spec §2, §15.)
 * **Deny by default.** Unknown non-`x-` properties are rejected, not ignored. (§3.1)
-* **Execution references stored versions.** The client sends only `{versionId, datasetId, parameterValues, pagination}` — never a dataset definition. (§7.7, §15.4)
+* **Execution references stored versions.** The client sends only `{versionId, datasetId, parameterValues, pagination}` — never a dataset definition. (§7.8, §15.4)
 * **Viewer's authorization, server's credentials.** Tenant scoping is applied by the broker independently of document filters; identifiers inside documents are never trusted. (§15.3, §15.5)
 * **Graphics never carry data.** The renderer injects rows as the named datasource `airspecData`; resolution order is security overrides → tenant theme → document theme → graphic → renderer defaults. (§10.1)
 * **Fail soft per component.** One failing dataset or component must not blank the report. (§2.5, §29)
@@ -81,10 +81,12 @@ Implement as four ordered, pure stages. Return **machine-readable errors** — t
 
 Include the valid alternatives in messages where cheap (as above) — it measurably improves model self-correction.
 
-**Layer 1 — Schema.** Validate against `schema/1.0/airspec.schema.json` with a draft 2020-12 validator. Do not hand-roll.
+**Layer 1 — Schema.** Select the versioned schema matching the document's `airspec` value (`schema/1.0/airspec.schema.json`, `schema/1.1/airspec.schema.json`, and so on) and validate with a draft 2020-12 validator. Do not hand-roll.
 
 **Layer 2 — Semantic.** The checks, exhaustively (each maps to a conformance case):
 dataset `source` exists in catalog · every dataset field/dimension/metric field/filter field/sort field exists on its source · aggregations appear in the field's catalog `aggregations` · `timeUnit` only on date/datetime fields with catalog `timeUnits` · filter operators permitted for the field (catalog `operators` or your type defaults) · filter `parameter` refs resolve and are type-compatible · component `datasetId` refs resolve · every component-bound field (metric `valueField`, table columns, encoding `field`s, tooltip fields, interaction `valueFrom`/`recordIdFrom`/params fields) is present in the bound dataset's **output** (list `fields` or aggregate aliases/dimension fields) · component IDs unique; parameter IDs unique; dataset IDs unique · filterBar parameters resolve · interaction `on.component` resolves · navigate `route` is registered in the catalog · selection IDs referenced by `condition` exist in the same graphic.
+
+For AIRspec 1.1, additionally validate every Dataset binding case/default, static-option coverage, unique and type-compatible `equals` values, stable output contracts across alternatives, every graphic-binding alternative, selection-qualified events, transfer-mode compatibility, and atomic action references. Never implement bindings as arbitrary paths or patches.
 
 **Layer 3 — Authorization.** Host-defined. Minimum viable policy (matches `conformance/policy.example.json`): allowed sources per viewer; denied field `classification`s; row/page ceilings. Enforce at validation time AND re-check at every execution — a stored document may outlive a permission grant.
 
@@ -111,7 +113,7 @@ Error responses: structured, user-presentable, and free of internal URLs, stack 
 * Per-component: loading, empty (`emptyState` pairing), invalid-config, auth-failure, and error states. Component-level error boundaries.
 * Dataset loading is keyed by `versionId + datasetId + normalized params + pagination + viewer scope` and deduplicated — two components on one dataset produce one request (§25).
 * **Charts (Class AV):** implement AIRMark via an adapter to your chosen chart runtime. The adapter accepts only *validated* graphics, injects broker rows as `airspecData`, applies the §10.1 resolution order, and strips any target-runtime capability the spec prohibits even if the runtime supports it (see `adapters/README.md`). Compiling AIRMark to Vega-Lite is typically ~200–400 lines and the fastest AV path.
-* **Interactions (Class AVI):** a dispatcher from `{component, event}` to the fixed action vocabulary. `navigate` resolves route IDs through your router registry — never constructs URLs from document content.
+* **Interactions (Class AVI):** a dispatcher from `{component, event, selection?}` to the fixed action vocabulary. Apply AIRspec 1.1 parameter mutations atomically, resolve dependent bindings once, and execute each affected dataset at most once per state revision. `navigate` resolves route IDs through your router registry — never constructs URLs from document content.
 
 ---
 
@@ -128,7 +130,7 @@ Do not give the model credentials, endpoints, URL-fetching tools, or execution t
 
 ## Part 7 — Definition of done
 
-* [ ] `python conformance/runner.py --cmd "<your validator>"` — all 25 cases pass
+* [ ] `python conformance/runner.py --cmd "<your validator>"` — every manifest case passes
 * [ ] The three `samples/` documents render end-to-end against your catalog-equivalent sources (adjust source/field names or add a mapping catalog)
 * [ ] Broker rejects a hand-crafted execution request containing an inline dataset definition
 * [ ] A document requesting a field the viewer may not see renders everything else and shows a per-component auth error

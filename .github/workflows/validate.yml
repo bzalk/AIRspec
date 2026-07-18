@@ -32,17 +32,20 @@ jobs:
           from pathlib import Path
           from jsonschema import Draft202012Validator
 
-          schema_path = Path("schema/1.0/airspec.schema.json")
-          schema = json.loads(schema_path.read_text())
-          Draft202012Validator.check_schema(schema)
-          validator = Draft202012Validator(schema)
-
-          samples = sorted(Path("samples").glob("class-*.json"))
+          samples = sorted(path for path in Path("samples").glob("**/*.json") if "catalogs" not in path.parts)
           if not samples:
               raise SystemExit("No AIRspec samples found")
 
+          validators = {}
           for sample_path in samples:
               document = json.loads(sample_path.read_text())
+              version = document["airspec"]
+              if version not in validators:
+                  schema_path = Path("schema") / version / "airspec.schema.json"
+                  schema = json.loads(schema_path.read_text())
+                  Draft202012Validator.check_schema(schema)
+                  validators[version] = Draft202012Validator(schema)
+              validator = validators[version]
               errors = sorted(validator.iter_errors(document), key=lambda error: list(error.path))
               if errors:
                   details = "\n".join(f"{sample_path}: {error.message}" for error in errors)

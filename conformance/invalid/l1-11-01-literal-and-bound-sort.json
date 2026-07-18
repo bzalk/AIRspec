@@ -1,0 +1,34 @@
+{
+  "airspec": "1.1",
+  "meta": { "title": "Conflicting sort" },
+  "parameters": [
+    {
+      "id": "sortMode",
+      "type": "select",
+      "label": "Sort",
+      "options": {
+        "type": "static",
+        "values": [{ "value": "name", "label": "Name" }]
+      }
+    }
+  ],
+  "datasets": [
+    {
+      "id": "ordersList",
+      "source": "orders",
+      "operation": "list",
+      "fields": ["order_id"],
+      "sort": [{ "field": "order_id", "direction": "ascending" }],
+      "bindings": {
+        "sort": {
+          "parameter": "sortMode",
+          "cases": [
+            { "equals": "name", "value": [{ "field": "order_id", "direction": "ascending" }] }
+          ],
+          "default": [{ "field": "order_id", "direction": "ascending" }]
+        }
+      }
+    }
+  ],
+  "layout": { "id": "root", "type": "text", "text": "Invalid" }
+}

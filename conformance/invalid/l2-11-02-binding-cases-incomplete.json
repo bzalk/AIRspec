@@ -1,0 +1,36 @@
+{
+  "airspec": "1.1",
+  "meta": { "title": "Incomplete binding cases" },
+  "parameters": [
+    {
+      "id": "sortMode",
+      "type": "select",
+      "label": "Sort",
+      "options": {
+        "type": "static",
+        "values": [
+          { "value": "name", "label": "Name" },
+          { "value": "total", "label": "Total" }
+        ]
+      }
+    }
+  ],
+  "datasets": [
+    {
+      "id": "ordersList",
+      "source": "orders",
+      "operation": "list",
+      "fields": ["order_id", "total"],
+      "bindings": {
+        "sort": {
+          "parameter": "sortMode",
+          "cases": [
+            { "equals": "name", "value": [{ "field": "order_id", "direction": "ascending" }] }
+          ],
+          "default": [{ "field": "order_id", "direction": "ascending" }]
+        }
+      }
+    }
+  ],
+  "layout": { "id": "root", "type": "text", "text": "Invalid" }
+}

@@ -8,6 +8,8 @@ AIRspec defines a portable JSON document that describes a complete interactive r
 
 📄 **Read the full specification: [AIRspec.md](./AIRspec.md)**
 
+Current draft: **1.1**. AIRspec 1.1 adds typed reactive Dataset and graphic bindings, richer selection transfer, and atomic multi-action interactions while preserving the stable [1.0 schema](./schema/1.0/airspec.schema.json). See the [changelog](./CHANGELOG.md) and [interaction design matrix](./design/1.1-reactive-interactions.md).
+
 ---
 
 ## Why AIRspec exists
@@ -64,7 +66,7 @@ Whichever you choose, the observable behavior must match §10 of the spec, and t
 In rough order of construction:
 
 1. **Publish a Source Catalog** — describe your data sources, fields, and capabilities as logical business concepts using the [Source Catalog schema](./schema/1.0/catalog.schema.json) (spec §6). This is the only view of your data the AI ever sees.
-2. **Implement the Data Broker** — one trusted server endpoint that executes stored dataset definitions with the *viewer's* authorization and server-held credentials (§7.7, §18-adjacent).
+2. **Implement the Data Broker** — one trusted server endpoint that executes stored dataset definitions with the *viewer's* authorization and server-held credentials (§7.8, §18-adjacent).
 3. **Implement validation** — JSON Schema first, then semantic, authorization, and AIRMark checks (§14). Return machine-readable errors so the AI can self-correct.
 4. **Implement the renderer** — map each component type to one of your trusted UI components (§8–§9).
 
@@ -87,19 +89,23 @@ Read §2 (Design Principles) and §18 (Complete Example Document) of [AIRspec.md
 
 ```text
 AIRspec.md          The specification (start here)
+CHANGELOG.md        Version history and compatibility notes
 IMPLEMENTATION.md   Build guide for implementing an AIRspec Host
 README.md           This file
 LICENSE             MIT
 schema/
   1.0/
-    airspec.schema.json Published JSON Schema (Validation Layer 1)
+    airspec.schema.json Stable AIRspec 1.0 JSON Schema
     catalog.schema.json Published Source Catalog JSON Schema
+  1.1/
+    airspec.schema.json AIRspec 1.1 schema with reactive bindings
 conformance/        Conformance fixtures, manifest, policy, and runner
 samples/
   class-a-table-report.json             Class A: tables + metrics, no charts
   class-av-dashboard.json               Class AV: adds an AIRMark chart
   class-avi-interactive-dashboard.json  Class AVI: selections, drilldown,
                                         navigation, export
+  1.1/reactive-dashboard.json           Reactive AIRspec 1.1 example
   catalogs/orders.catalog.json          Example Source Catalog entry
 adapters/           Reference adapter sketches for popular chart
                     runtimes (sketches planned — see adapters/README.md)
