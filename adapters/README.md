@@ -2,6 +2,8 @@
 
 AIRMark is a grammar, not a library — it prescribes no rendering technology. This directory is reserved for **reference adapter sketches**: worked examples of translating a validated AIRMark `graphic` object into the configuration format of popular chart runtimes.
 
+For a runtime-independent implementation, see [Building a Framework-Agnostic AIRMark Renderer](./framework-agnostic-renderer.md). It describes a pure layout engine, scene-graph contract, thin framework adapters, portable tests, and an incremental migration path.
+
 Planned sketches:
 
 * `airmark-to-vega-lite/` — mark/encoding translation for Vega-Lite runtimes

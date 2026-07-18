@@ -107,8 +107,8 @@ samples/
                                         navigation, export
   1.1/reactive-dashboard.json           Reactive AIRspec 1.1 example
   catalogs/orders.catalog.json          Example Source Catalog entry
-adapters/           Reference adapter sketches for popular chart
-                    runtimes (sketches planned — see adapters/README.md)
+adapters/           Renderer architecture guide and reference adapter
+                    sketches (see adapters/README.md)
 ```
 
 Every sample validates against the published schema — see `samples/README.md` for a one-liner to try it yourself. Contributions welcome.

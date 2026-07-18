@@ -113,6 +113,7 @@ Error responses: structured, user-presentable, and free of internal URLs, stack 
 * Per-component: loading, empty (`emptyState` pairing), invalid-config, auth-failure, and error states. Component-level error boundaries.
 * Dataset loading is keyed by `versionId + datasetId + normalized params + pagination + viewer scope` and deduplicated — two components on one dataset produce one request (§25).
 * **Charts (Class AV):** implement AIRMark via an adapter to your chosen chart runtime. The adapter accepts only *validated* graphics, injects broker rows as `airspecData`, applies the §10.1 resolution order, and strips any target-runtime capability the spec prohibits even if the runtime supports it (see `adapters/README.md`). Compiling AIRMark to Vega-Lite is typically ~200–400 lines and the fastest AV path.
+  For a portable renderer with no required chart runtime, follow `adapters/framework-agnostic-renderer.md`: keep transforms, scales, axes, geometry, and interaction metadata in a pure layout engine that emits a scene graph, then draw it with a thin platform adapter.
 * **Interactions (Class AVI):** a dispatcher from `{component, event, selection?}` to the fixed action vocabulary. Apply AIRspec 1.1 parameter mutations atomically, resolve dependent bindings once, and execute each affected dataset at most once per state revision. `navigate` resolves route IDs through your router registry — never constructs URLs from document content.
 
 ---
