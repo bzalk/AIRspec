@@ -136,7 +136,7 @@ AIRspec and AIRMark are self-contained: conformance is measured against [AIRspec
 
 ## Ecosystem
 
-* [airmark-engine](https://github.com/bzalk/airmark-engine) — reference framework-agnostic layout engine implementing the AIRMark Scene Graph draft, published as [`@airspec/airmark-engine`](https://www.npmjs.com/package/@airspec/airmark-engine), [`@airspec/airmark-svg`](https://www.npmjs.com/package/@airspec/airmark-svg), and [`@airspec/airmark-react`](https://www.npmjs.com/package/@airspec/airmark-react).
+* [airmark-engine](https://github.com/bzalk/airmark-engine) — reference framework-agnostic layout engine implementing the AIRMark Scene Graph draft, published as [`@airspec/airmark-engine`](https://www.npmjs.com/package/@airspec/airmark-engine), [`@airspec/airmark-svg`](https://www.npmjs.com/package/@airspec/airmark-svg), and [`@airspec/airmark-react`](https://www.npmjs.com/package/@airspec/airmark-react). Its generated [fixture gallery index](https://github.com/bzalk/airmark-engine/blob/main/fixtures/manifest.json) exposes every proven chart case for galleries, pickers, and implementation examples.
 
 Ecosystem projects are optional implementations. AIRspec conformance does not require a particular engine, framework, or chart runtime.
 
