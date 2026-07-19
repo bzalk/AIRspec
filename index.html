@@ -403,9 +403,30 @@
     padding: 68px 0; border-top: 1px solid var(--codeline);
   }
   .denied .section-eyebrow { color: var(--code-str); }
-  .denied h2 { color: #fff; font-family: var(--disp); font-size: clamp(26px, 3.6vw, 36px); font-weight: 700; letter-spacing: -0.02em; max-width: 28ch; margin-bottom: 10px; }
-  .denied .sub { color: #93A5C8; max-width: 60ch; font-size: 16px; }
-  .tokens { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+  .denied h2 { color: #fff; font-family: var(--disp); font-size: clamp(30px, 4.2vw, 46px); line-height: 1.08; font-weight: 700; letter-spacing: -0.028em; max-width: 24ch; margin-bottom: 16px; }
+  .denied .sub { color: #A4B2D0; max-width: 68ch; font-size: 17px; line-height: 1.65; }
+  .security-contract {
+    display: grid; grid-template-columns: 1fr 1fr; margin-top: 38px;
+    border-top: 1px solid #2A3A5B; border-bottom: 1px solid #2A3A5B;
+  }
+  .contract-side { padding: 28px 34px 30px 0; }
+  .contract-side + .contract-side { padding-left: 34px; border-left: 1px solid #2A3A5B; }
+  .contract-label {
+    display: block; margin-bottom: 12px; font-family: var(--mono); font-size: 10px;
+    font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: #7386AC;
+  }
+  .contract-side strong {
+    display: block; color: #fff; font-family: var(--disp); font-size: 21px;
+    line-height: 1.2; letter-spacing: -.015em; margin-bottom: 8px;
+  }
+  .contract-side:first-child strong { color: var(--code-str); }
+  .contract-side:last-child strong { color: var(--code-key); }
+  .contract-side p { color: #93A5C8; font-size: 14px; line-height: 1.6; max-width: 46ch; }
+  .denied-label {
+    margin-top: 30px; font-family: var(--mono); font-size: 10px; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase; color: #7386AC;
+  }
+  .tokens { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
   .tok {
     font-family: var(--mono); font-size: 13px;
     border: 1px solid var(--codeline); border-radius: 8px;
@@ -414,6 +435,11 @@
     text-decoration: line-through; text-decoration-color: var(--red); text-decoration-thickness: 1.5px;
   }
   .tok::before { content: "✕"; color: var(--red); text-decoration: none; font-size: 11px; }
+  @media (max-width: 680px) {
+    .security-contract { grid-template-columns: 1fr; }
+    .contract-side { padding: 24px 0; }
+    .contract-side + .contract-side { padding-left: 0; border-left: 0; border-top: 1px solid #2A3A5B; }
+  }
 
   /* Footer */
   footer { border-top: 1px solid var(--line); padding: 44px 0 60px; }
@@ -676,8 +702,21 @@
 <section class="denied">
   <div class="wrap reveal">
     <div class="section-eyebrow">Security by construction</div>
-    <h2>Structurally absent, not merely discouraged.</h2>
-    <p class="sub">Validators reject any document containing executable or addressable surface. There is no flag to turn these on.</p>
+    <h2>The model gets the blueprint. Your data stays in your application.</h2>
+    <p class="sub">In the standard AIRspec flow, the model receives a schema and a catalog of safe, logical names — not business rows, credentials, database access, or internal endpoints. It returns inert report structure. Only after validation does your trusted server fetch authorized data and render it.</p>
+    <div class="security-contract" aria-label="AIRspec data boundary">
+      <div class="contract-side">
+        <span class="contract-label">The model receives</span>
+        <strong>Schema + logical catalog</strong>
+        <p>Enough context to describe the report: approved sources, field names, capabilities, and limits.</p>
+      </div>
+      <div class="contract-side">
+        <span class="contract-label">Your application keeps</span>
+        <strong>Rows + credentials + execution</strong>
+        <p>The Data Broker retrieves authorized rows server-side and passes them directly to trusted renderers.</p>
+      </div>
+    </div>
+    <div class="denied-label">Not available in the AIRspec document language</div>
     <div class="tokens" aria-label="Capabilities that cannot appear in an AIRspec document">
       <span class="tok">eval()</span>
       <span class="tok">data.url</span>
