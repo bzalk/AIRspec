@@ -48,15 +48,18 @@ The spec defines three conformance classes so you can start small:
 
 ### Step 2 — Choose how you'll render charts (Class AV+)
 
-AIRMark is a *grammar*, not a library. It has **zero dependencies** and prescribes no rendering technology. You have three practical options, all equally conformant:
+AIRMark is a *grammar*, not a library. It has **zero dependencies** and prescribes no rendering technology. You have four practical options, all equally conformant:
 
-1. **Translate to a chart library you already use.**
+1. **Use the reference implementation.**
+   Install [`@airspec/airmark-react`](https://www.npmjs.com/package/@airspec/airmark-react) for React, [`@airspec/airmark-svg`](https://www.npmjs.com/package/@airspec/airmark-svg) for server-side SVG, or the framework-neutral [`@airspec/airmark-engine`](https://www.npmjs.com/package/@airspec/airmark-engine) directly. The engine turns validated graphics and trusted broker rows into a deterministic scene graph.
+
+2. **Translate to a chart library you already use.**
    Write a small internal adapter that converts a validated AIRMark `graphic` object into the configuration format of Vega-Lite, ECharts, Chart.js, Highcharts, Plotly, or similar. This is usually the fastest path — AIRMark's mark/encoding shape maps naturally onto most modern chart libraries. The adapter is an invisible implementation detail; your stored documents remain pure AIRspec.
 
-2. **Build a bespoke renderer.**
+3. **Build a bespoke renderer.**
    Render AIRMark directly to SVG or Canvas. Most control, most effort. Sensible if you already have an in-house charting system or unusual visual requirements.
 
-3. **Skip charts initially.**
+4. **Skip charts initially.**
    Ship Class A (metrics, tables, filters, layout) first. Add AIRMark support later without changing any document you've already stored — documents are forward-compatible.
 
 Whichever you choose, the observable behavior must match §10 of the spec, and the security rules in §15 always apply.
@@ -133,7 +136,7 @@ AIRspec and AIRMark are self-contained: conformance is measured against [AIRspec
 
 ## Ecosystem
 
-* [airmark-engine](https://github.com/bzalk/airmark-engine) — reference framework-agnostic layout engine implementing the AIRMark Scene Graph draft, with deterministic golden fixtures plus SVG and React adapters.
+* [airmark-engine](https://github.com/bzalk/airmark-engine) — reference framework-agnostic layout engine implementing the AIRMark Scene Graph draft, published as [`@airspec/airmark-engine`](https://www.npmjs.com/package/@airspec/airmark-engine), [`@airspec/airmark-svg`](https://www.npmjs.com/package/@airspec/airmark-svg), and [`@airspec/airmark-react`](https://www.npmjs.com/package/@airspec/airmark-react).
 
 Ecosystem projects are optional implementations. AIRspec conformance does not require a particular engine, framework, or chart runtime.
 
