@@ -125,7 +125,7 @@ Error responses: structured, user-presentable, and free of internal URLs, stack 
 3. Run the full validation pipeline. On failure, return the machine-readable errors to the model and retry (cap at ~3 attempts; surface residual errors to the user).
 4. On success: store as a new immutable version; render.
 
-For diverging pairs such as population pyramids, tornado charts, and butterfly comparisons, Generators SHOULD build two mirrored charts in adjacent grid cells, set `"scale": {"reverse": true}` on the left chart's quantitative channel, and set `"axis": {"orient": "right"}` on its nominal channel to place shared category labels at the center spine.
+For diverging pairs such as population pyramids, tornado charts, and butterfly comparisons, Generators SHOULD build two mirrored charts in adjacent grid cells, set `"scale": {"reverse": true}` on the left chart's quantitative channel, and declare the same explicit quantitative domain on both halves. Keep category labels on the outer left by default and set the right chart's nominal axis to `null`; use `"axis": {"orient": "right"}` on the left chart only when center-spine labels are desired.
 
 Do not give the model credentials, endpoints, URL-fetching tools, or execution tools (§20). Optional but high-value tools to expose instead: `describe_source`, `preview_dataset` (broker-backed, viewer-scoped, row-capped), `validate_document`.
 

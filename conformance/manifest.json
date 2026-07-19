@@ -1,6 +1,6 @@
 {
   "airspecVersions": ["1.0", "1.1"],
-  "suiteVersion": "1.1.2",
+  "suiteVersion": "1.1.3",
   "catalog": "catalog.json",
   "policy": "policy.example.json",
   "semantics": {
@@ -195,7 +195,7 @@
       "id": "V11-02",
       "file": "valid/v05-mirrored-pyramid.json",
       "expect": "accept",
-      "description": "AIRspec 1.1 mirrored population pyramid: scale.reverse on the left quantitative axis, with right-oriented nominal labels at the center spine."
+      "description": "AIRspec 1.1 mirrored population pyramid: reversed left axis, identical explicit quantitative domains, outer-left category labels, and the right category axis suppressed."
     },
     {
       "id": "L1-11-01",

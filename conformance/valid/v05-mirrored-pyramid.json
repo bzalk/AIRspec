@@ -2,7 +2,7 @@
   "airspec": "1.1",
   "meta": {
     "title": "Mirrored Pyramid (scale.reverse conformance)",
-    "description": "Valid: diverging pair using scale.reverse on the left chart's quantitative axis."
+    "description": "Valid: diverging pair using scale.reverse. Left chart: reversed x with shared explicit domain, y-axis default (age labels on the outer left). Right chart: same domain, y axis null. Both halves MUST declare the same x domain so bar lengths compare across the spine."
   },
   "datasets": [
     {
@@ -42,14 +42,17 @@
               "field": "age",
               "type": "nominal",
               "sort": null,
-              "title": "Age",
-              "axis": { "orient": "right" }
+              "title": "Age"
             },
             "x": {
               "field": "population",
               "type": "quantitative",
               "title": "Population",
-              "scale": { "zero": true, "reverse": true }
+              "scale": {
+                "zero": true,
+                "reverse": true,
+                "domain": [0, 500]
+              }
             }
           }
         }
@@ -68,7 +71,10 @@
               "field": "population",
               "type": "quantitative",
               "title": "Population",
-              "scale": { "zero": true }
+              "scale": {
+                "zero": true,
+                "domain": [0, 500]
+              }
             }
           }
         }

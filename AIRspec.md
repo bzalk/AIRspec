@@ -666,7 +666,7 @@ For positional channels, `axis.orient` selects the plot edge on which the axis i
 
 `reverse` is a boolean with default `false`. It flips the scale's pixel range **after** all domain, sort, and tick computation. The domain, tick values, and labels are identical to the non-reversed scale; only positions mirror. On quantitative and log scales, values increase toward the opposite edge, and a bar chart's zero baseline moves to the flipped side automatically. On band and ordinal scales, `reverse` reverses the **resolved** domain order: apply `sort`, then reverse, so it composes with sort rather than replacing it.
 
-The primary use is a diverging chart pair. A population pyramid uses two horizontal bar charts in adjacent grid cells, with `scale: {"reverse": true}` on the left chart's quantitative channel and `axis: {"orient": "right"}` on its nominal channel to place shared category labels at the center spine.
+The primary use is a diverging chart pair. A population pyramid uses two horizontal bar charts in adjacent grid cells with `scale: {"reverse": true}` on the left chart's quantitative channel. Both quantitative channels MUST declare the same explicit domain so bar lengths remain comparable across the spine. Category labels MAY remain on the outer left by using the left chart's default nominal axis and setting the right chart's nominal axis to `null`; alternatively, `axis: {"orient": "right"}` on the left chart places labels at the center spine.
 
 ### 10.7 Composition
 
