@@ -662,9 +662,11 @@ Each channel definition MAY include: `field`, `type` (`quantitative` | `temporal
 * `scale` MAY set `type` (`linear`, `log`, `sqrt`, `pow`, `time`, `utc`, `ordinal`, `band`, `point`), `domain` (literal arrays only), `range` (color arrays or named schemes from the Host palette registry), `zero`, `nice`, `padding`, `scheme`, and `reverse`.
 * All formatting flows through §11 format objects; AIRMark has no string-pattern mini-language of its own and no formatter callbacks.
 
+For positional channels, `axis.orient` selects the plot edge on which the axis is rendered: `left` or `right` for a y axis, and `bottom` or `top` for an x axis. An orientation incompatible with the channel MUST be rejected rather than silently ignored. On the nominal y axis of a horizontal chart, `right` moves the axis line, outward ticks, labels, and title to the plot's right edge. This is the center-spine label pattern for the left half of a mirrored pair.
+
 `reverse` is a boolean with default `false`. It flips the scale's pixel range **after** all domain, sort, and tick computation. The domain, tick values, and labels are identical to the non-reversed scale; only positions mirror. On quantitative and log scales, values increase toward the opposite edge, and a bar chart's zero baseline moves to the flipped side automatically. On band and ordinal scales, `reverse` reverses the **resolved** domain order: apply `sort`, then reverse, so it composes with sort rather than replacing it.
 
-The primary use is a diverging chart pair. A population pyramid uses two horizontal bar charts in adjacent grid cells sharing an age axis, with `scale: {"reverse": true}` on the left chart's quantitative channel.
+The primary use is a diverging chart pair. A population pyramid uses two horizontal bar charts in adjacent grid cells, with `scale: {"reverse": true}` on the left chart's quantitative channel and `axis: {"orient": "right"}` on its nominal channel to place shared category labels at the center spine.
 
 ### 10.7 Composition
 

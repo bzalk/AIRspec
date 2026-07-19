@@ -38,7 +38,13 @@
         "graphic": {
           "mark": { "type": "bar", "color": "#3264D6" },
           "encoding": {
-            "y": { "field": "age", "type": "nominal", "sort": null, "title": "Age" },
+            "y": {
+              "field": "age",
+              "type": "nominal",
+              "sort": null,
+              "title": "Age",
+              "axis": { "orient": "right" }
+            },
             "x": {
               "field": "population",
               "type": "quantitative",
