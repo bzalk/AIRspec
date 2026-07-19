@@ -4,6 +4,8 @@ Status: non-normative implementation guidance
 
 This guide describes a portable architecture for implementing AIRMark without coupling layout logic to React, another UI framework, the DOM, SVG, Canvas, or a specific chart runtime. Conformance remains defined exclusively by `AIRspec.md`; the interfaces below are Host implementation details.
 
+Reference implementation: [bzalk/airmark-engine](https://github.com/bzalk/airmark-engine), including the AIRMark Scene Graph draft, deterministic fixtures, and SVG and React adapters.
+
 ## Architecture
 
 Split the renderer into two layers:

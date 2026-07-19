@@ -131,6 +131,14 @@ AIRspec and AIRMark are self-contained: conformance is measured against [AIRspec
 
 ---
 
+## Ecosystem
+
+* [airmark-engine](https://github.com/bzalk/airmark-engine) — reference framework-agnostic layout engine implementing the AIRMark Scene Graph draft, with deterministic golden fixtures plus SVG and React adapters.
+
+Ecosystem projects are optional implementations. AIRspec conformance does not require a particular engine, framework, or chart runtime.
+
+---
+
 ## License
 
 MIT (recommended; see [LICENSE](./LICENSE)).
