@@ -1,0 +1,72 @@
+{
+  "airspec": "1.1",
+  "meta": {
+    "title": "Mirrored Pyramid (scale.reverse conformance)",
+    "description": "Valid: diverging pair using scale.reverse on the left chart's quantitative axis."
+  },
+  "datasets": [
+    {
+      "id": "maleByAge",
+      "source": "population",
+      "operation": "aggregate",
+      "dimensions": [{ "field": "age", "alias": "age" }],
+      "metrics": [{ "operation": "sum", "field": "population", "alias": "population" }],
+      "filters": [{ "field": "sex", "operator": "equals", "value": "Male" }],
+      "sort": [{ "field": "age", "direction": "ascending" }]
+    },
+    {
+      "id": "femaleByAge",
+      "source": "population",
+      "operation": "aggregate",
+      "dimensions": [{ "field": "age", "alias": "age" }],
+      "metrics": [{ "operation": "sum", "field": "population", "alias": "population" }],
+      "filters": [{ "field": "sex", "operator": "equals", "value": "Female" }],
+      "sort": [{ "field": "age", "direction": "ascending" }]
+    }
+  ],
+  "layout": {
+    "id": "root",
+    "type": "grid",
+    "gap": "small",
+    "children": [
+      {
+        "id": "maleChart",
+        "type": "chart",
+        "title": "Male",
+        "datasetId": "maleByAge",
+        "grid": { "span": 6, "minHeight": 360 },
+        "graphic": {
+          "mark": { "type": "bar", "color": "#3264D6" },
+          "encoding": {
+            "y": { "field": "age", "type": "nominal", "sort": null, "title": "Age" },
+            "x": {
+              "field": "population",
+              "type": "quantitative",
+              "title": "Population",
+              "scale": { "zero": true, "reverse": true }
+            }
+          }
+        }
+      },
+      {
+        "id": "femaleChart",
+        "type": "chart",
+        "title": "Female",
+        "datasetId": "femaleByAge",
+        "grid": { "span": 6, "minHeight": 360 },
+        "graphic": {
+          "mark": { "type": "bar", "color": "#E8437A" },
+          "encoding": {
+            "y": { "field": "age", "type": "nominal", "sort": null, "axis": null },
+            "x": {
+              "field": "population",
+              "type": "quantitative",
+              "title": "Population",
+              "scale": { "zero": true }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

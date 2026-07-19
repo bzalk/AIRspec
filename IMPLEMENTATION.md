@@ -125,6 +125,8 @@ Error responses: structured, user-presentable, and free of internal URLs, stack 
 3. Run the full validation pipeline. On failure, return the machine-readable errors to the model and retry (cap at ~3 attempts; surface residual errors to the user).
 4. On success: store as a new immutable version; render.
 
+For diverging pairs such as population pyramids, tornado charts, and butterfly comparisons, Generators SHOULD build two mirrored charts in adjacent grid cells and set `"scale": {"reverse": true}` on the left chart's quantitative channel. Keep category labels on the outer or shared edge through declarative axis configuration.
+
 Do not give the model credentials, endpoints, URL-fetching tools, or execution tools (§20). Optional but high-value tools to expose instead: `describe_source`, `preview_dataset` (broker-backed, viewer-scoped, row-capped), `validate_document`.
 
 ---

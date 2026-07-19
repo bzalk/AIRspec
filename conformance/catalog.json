@@ -64,6 +64,27 @@
           "aggregations": ["sum", "average", "minimum", "maximum"]
         }
       }
+    },
+    {
+      "id": "population",
+      "label": "Population",
+      "description": "Population totals grouped by age band and sex.",
+      "operations": ["aggregate"],
+      "fields": {
+        "age": {
+          "type": "string", "label": "Age Band",
+          "groupable": true, "sortable": true
+        },
+        "sex": {
+          "type": "enum", "label": "Sex",
+          "values": ["Male", "Female"],
+          "filterable": true, "groupable": true
+        },
+        "population": {
+          "type": "number", "label": "Population",
+          "aggregations": ["sum"]
+        }
+      }
     }
   ]
 }

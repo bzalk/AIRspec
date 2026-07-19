@@ -659,8 +659,12 @@ Each channel definition MAY include: `field`, `type` (`quantitative` | `temporal
 ### 10.6 Axes, legends, scales
 
 * `axis` and `legend` objects MAY set `title`, `labelAngle`, `labelLimit`, `labelOverlap`, `orient`, `grid`, `ticks`, `tickCount`, and `format` (a §11 format object). All values are JSON literals.
-* `scale` MAY set `type` (`linear`, `log`, `sqrt`, `pow`, `time`, `utc`, `ordinal`, `band`, `point`), `domain` (literal arrays only), `range` (color arrays or named schemes from the Host palette registry), `zero`, `nice`, `padding`, `scheme`.
+* `scale` MAY set `type` (`linear`, `log`, `sqrt`, `pow`, `time`, `utc`, `ordinal`, `band`, `point`), `domain` (literal arrays only), `range` (color arrays or named schemes from the Host palette registry), `zero`, `nice`, `padding`, `scheme`, and `reverse`.
 * All formatting flows through §11 format objects; AIRMark has no string-pattern mini-language of its own and no formatter callbacks.
+
+`reverse` is a boolean with default `false`. It flips the scale's pixel range **after** all domain, sort, and tick computation. The domain, tick values, and labels are identical to the non-reversed scale; only positions mirror. On quantitative and log scales, values increase toward the opposite edge, and a bar chart's zero baseline moves to the flipped side automatically. On band and ordinal scales, `reverse` reverses the **resolved** domain order: apply `sort`, then reverse, so it composes with sort rather than replacing it.
+
+The primary use is a diverging chart pair. A population pyramid uses two horizontal bar charts in adjacent grid cells sharing an age axis, with `scale: {"reverse": true}` on the left chart's quantitative channel.
 
 ### 10.7 Composition
 

@@ -5,7 +5,7 @@
     "id": "test-viewer",
     "tenant": "tenant-a"
   },
-  "allowedSources": ["orders", "accounts"],
+  "allowedSources": ["orders", "accounts", "population"],
   "deniedClassifications": ["financial-internal"],
   "limits": {
     "maximumRows": 5000,

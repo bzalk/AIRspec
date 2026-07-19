@@ -976,7 +976,11 @@
         "scheme": { "type": "string", "maxLength": 50 },
         "zero": { "type": "boolean" },
         "nice": { "type": "boolean" },
-        "padding": { "type": "number", "minimum": 0, "maximum": 1 }
+        "padding": { "type": "number", "minimum": 0, "maximum": 1 },
+        "reverse": {
+          "type": "boolean",
+          "description": "Flip the scale's pixel range after domain and tick computation. On band/ordinal scales, reverses the resolved domain order (composes with sort). Enables mirrored/diverging axes such as population pyramids."
+        }
       }
     },
     "graphicTransform": {

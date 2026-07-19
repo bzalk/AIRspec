@@ -1,6 +1,6 @@
 {
   "airspecVersions": ["1.0", "1.1"],
-  "suiteVersion": "1.1.0",
+  "suiteVersion": "1.1.1",
   "catalog": "catalog.json",
   "policy": "policy.example.json",
   "semantics": {
@@ -190,6 +190,12 @@
       "file": "valid/v11-01-reactive-dashboard.json",
       "expect": "accept",
       "description": "AIRspec 1.1 reactive dashboard: typed dimension, metric, sort, and limit bindings; graphic binding; atomic actions; selection clear."
+    },
+    {
+      "id": "V11-02",
+      "file": "valid/v05-mirrored-pyramid.json",
+      "expect": "accept",
+      "description": "AIRspec 1.1 mirrored population pyramid: scale.reverse on the left quantitative axis composes with the shared category order."
     },
     {
       "id": "L1-11-01",

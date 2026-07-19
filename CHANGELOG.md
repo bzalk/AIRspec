@@ -6,6 +6,7 @@ AIRspec 1.1 adds a general reactive interaction model while preserving the 1.0 s
 
 ### Added
 
+* **1.1 amendment:** `scale.reverse` for mirrored quantitative, logarithmic, band, and ordinal axes. This is backward compatible; documents that omit it are unchanged, while documents using it require the amended 1.1 schema.
 * Typed Dataset parameter bindings for `fields`, `field`, `dimensions`, `metrics`, `filters`, `sort`, and `limit`.
 * Stable output contracts across Dataset alternatives.
 * Whole-graphic parameter bindings for safe presentation switching.
