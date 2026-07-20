@@ -1,0 +1,1 @@
+{"airspec":"1.1","meta":{"title":"Invalid derivation node"},"datasets":[{"id":"sales","source":"orders","operation":"aggregate","derived":[{"alias":"bad","expr":{"add":["quantity",1],"multiply":["quantity","price"]}}],"metrics":[{"operation":"sum","field":"bad","alias":"total"}]}],"layout":{"id":"root","type":"text","text":"Invalid"}}

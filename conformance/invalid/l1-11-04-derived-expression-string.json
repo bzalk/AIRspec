@@ -1,0 +1,1 @@
+{"airspec":"1.1","meta":{"title":"Invalid string derivation"},"datasets":[{"id":"sales","source":"orders","operation":"aggregate","derived":[{"alias":"line_revenue","expr":"quantity * price"}],"metrics":[{"operation":"sum","field":"line_revenue","alias":"revenue"}]}],"layout":{"id":"root","type":"text","text":"Invalid"}}

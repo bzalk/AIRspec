@@ -88,6 +88,11 @@
           "uniqueItems": true,
           "items": { "enum": ["list", "aggregate", "distinct"] }
         },
+        "derivationsEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether AIRspec documents may define structured derived fields for this source. Set false to disable document derivations for the source."
+        },
         "fields": {
           "type": "object",
           "minProperties": 1,
@@ -133,6 +138,11 @@
         "filterable": { "type": "boolean", "default": false },
         "groupable": { "type": "boolean", "default": false },
         "sortable": { "type": "boolean", "default": false },
+        "derivable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this field may be referenced by a document-defined derived field."
+        },
         "operators": {
           "type": "array",
           "description": "Explicit operator allowlist. When omitted, the Host applies its type-default operator set.",

@@ -35,6 +35,16 @@
           "filterable": true, "sortable": true,
           "aggregations": ["sum", "average", "minimum", "maximum", "median"]
         },
+        "quantity": {
+          "type": "integer", "label": "Quantity",
+          "filterable": true, "sortable": true,
+          "aggregations": ["sum", "average", "minimum", "maximum"]
+        },
+        "price": {
+          "type": "currency", "label": "Unit Price",
+          "filterable": true, "sortable": true,
+          "aggregations": ["sum", "average", "minimum", "maximum"]
+        },
         "cost_basis": {
           "type": "currency", "label": "Cost Basis",
           "description": "Internal unit cost. Restricted by policy in most deployments.",

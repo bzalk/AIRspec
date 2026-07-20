@@ -8,7 +8,7 @@ AIRspec defines a portable JSON document that describes a complete interactive r
 
 📄 **Read the full specification: [AIRspec.md](./AIRspec.md)**
 
-Current draft: **1.1**. AIRspec 1.1 adds typed reactive Dataset and graphic bindings, richer selection transfer, and atomic multi-action interactions while preserving the stable [1.0 schema](./schema/1.0/airspec.schema.json). See the [changelog](./CHANGELOG.md) and [interaction design matrix](./design/1.1-reactive-interactions.md).
+Current draft: **1.1**. AIRspec 1.1 adds typed reactive Dataset and graphic bindings, structured derived fields and calculated metrics, richer selection transfer, and atomic multi-action interactions while preserving the stable [1.0 schema](./schema/1.0/airspec.schema.json). See the [changelog](./CHANGELOG.md) and [interaction design matrix](./design/1.1-reactive-interactions.md).
 
 ---
 
@@ -103,6 +103,7 @@ schema/
   1.1/
     airspec.schema.json AIRspec 1.1 schema with reactive bindings
 conformance/        Conformance fixtures, manifest, policy, and runner
+  broker/            Data Broker execution fixtures and expected rows
 samples/
   class-a-table-report.json             Class A: tables + metrics, no charts
   class-av-dashboard.json               Class AV: adds an AIRMark chart

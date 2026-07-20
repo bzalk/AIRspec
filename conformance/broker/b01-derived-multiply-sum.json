@@ -1,0 +1,29 @@
+{
+  "id": "B-01",
+  "description": "Row-level derived multiply is evaluated before grouped aggregation; aggregate and calculated outputs are keyed by their declared aliases.",
+  "dataset": {
+    "id": "sales",
+    "source": "orders",
+    "operation": "aggregate",
+    "derived": [
+      { "alias": "line_revenue", "expr": { "multiply": ["quantity", "price"] } }
+    ],
+    "dimensions": [{ "field": "region", "alias": "region" }],
+    "metrics": [
+      { "operation": "sum", "field": "line_revenue", "alias": "total_sales_revenue" },
+      { "operation": "count", "alias": "orders" },
+      { "alias": "avg_order_value", "calc": { "divide": ["total_sales_revenue", "orders"] } }
+    ],
+    "sort": [{ "field": "total_sales_revenue", "direction": "descending" }]
+  },
+  "inputRows": [
+    { "region": "West", "quantity": 2, "price": 10 },
+    { "region": "West", "quantity": 3, "price": 5 },
+    { "region": "East", "quantity": 4, "price": 7.5 },
+    { "region": "East", "quantity": 1, "price": 10 }
+  ],
+  "expectedRows": [
+    { "region": "East", "total_sales_revenue": 40, "orders": 2, "avg_order_value": 20 },
+    { "region": "West", "total_sales_revenue": 35, "orders": 2, "avg_order_value": 17.5 }
+  ]
+}

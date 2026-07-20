@@ -84,7 +84,7 @@ Include the valid alternatives in messages where cheap (as above) — it measura
 **Layer 1 — Schema.** Select the versioned schema matching the document's `airspec` value (`schema/1.0/airspec.schema.json`, `schema/1.1/airspec.schema.json`, and so on) and validate with a draft 2020-12 validator. Do not hand-roll.
 
 **Layer 2 — Semantic.** The checks, exhaustively (each maps to a conformance case):
-dataset `source` exists in catalog · every dataset field/dimension/metric field/filter field/sort field exists on its source · aggregations appear in the field's catalog `aggregations` · `timeUnit` only on date/datetime fields with catalog `timeUnits` · filter operators permitted for the field (catalog `operators` or your type defaults) · filter `parameter` refs resolve and are type-compatible · component `datasetId` refs resolve · every component-bound field (metric `valueField`, table columns, encoding `field`s, tooltip fields, interaction `valueFrom`/`recordIdFrom`/params fields) is present in the bound dataset's **output** (list `fields` or aggregate aliases/dimension fields) · component IDs unique; parameter IDs unique; dataset IDs unique · filterBar parameters resolve · interaction `on.component` resolves · navigate `route` is registered in the catalog · selection IDs referenced by `condition` exist in the same graphic.
+dataset `source` exists in catalog · every dataset field/dimension/metric field/filter field/sort field exists on its source or is an in-scope derived alias · aggregations appear in the field's catalog `aggregations` · every metric and derived output has an alias · derived trees use numeric catalog fields, depth ≤ 4, nodes ≤ 16, no forward references/cycles, and no alias collision · calc operands resolve to sibling metric aliases and the calc dependency graph is acyclic · derived classifications roll up to the maximum component classification · `derivable: false` and `derivationsEnabled: false` are honored · `timeUnit` only on date/datetime fields with catalog `timeUnits` · filter operators permitted for the field (catalog `operators` or your type defaults) · filter `parameter` refs resolve and are type-compatible · component `datasetId` refs resolve · every component-bound field (metric `valueField`, table columns, encoding `field`s, tooltip fields, interaction `valueFrom`/`recordIdFrom`/params fields) is present in the bound dataset's **output** (list `fields` or aggregate aliases/dimension fields) · component IDs unique; parameter IDs unique; dataset IDs unique · filterBar parameters resolve · interaction `on.component` resolves · navigate `route` is registered in the catalog · selection IDs referenced by `condition` exist in the same graphic.
 
 For AIRspec 1.1, additionally validate every Dataset binding case/default, static-option coverage, unique and type-compatible `equals` values, stable output contracts across alternatives, every graphic-binding alternative, selection-qualified events, transfer-mode compatibility, and atomic action references. Never implement bindings as arbitrary paths or patches.
 
@@ -98,7 +98,9 @@ For AIRspec 1.1, additionally validate every Dataset binding case/default, stati
 
 One endpoint: `POST /api/reports/{versionId}/datasets/{datasetId}/execute` with `{parameters, page}`.
 
-Execution sequence (spec §18): authenticate → load immutable version → locate dataset → authorize source and fields for **this viewer** → validate parameter values against parameter declarations → translate the logical request via the source's adapter → attach credentials server-side → execute → normalize rows to flat objects keyed by field/alias → strip fields the viewer may not receive → clamp and return `{rows, page, truncated}`.
+Execution sequence (spec §18): authenticate → load immutable version → locate dataset → authorize source, component fields, and derived component fields for **this viewer** → validate parameter values against parameter declarations → compile structured row-level derivations from allowlisted operators and catalog-mapped columns → apply derivations before filters and aggregation → compute calc-form metrics after aggregation → attach credentials server-side → execute → normalize rows to flat objects keyed by aliases verbatim → strip fields the viewer may not receive → clamp and return `{rows, page, truncated}`.
+
+The derivation compiler accepts the JSON tree, not a string. It MUST NOT concatenate document content into SQL, JavaScript, template syntax, or backend expression text. Bind each field reference through the source adapter's catalog mapping and each arithmetic node through a fixed operator implementation. Apply IEEE-754, left-to-right folding, null propagation, and division-by-zero-to-null exactly as specified. Add a broker fixture whose derived multiply is then summed by group and assert that every returned column is keyed by its declared alias.
 
 Write one **adapter interface** (`executeList`, `executeAggregate`, `getDistinctValues`) and one concrete adapter per source. Adapters own the translation from logical requests to your real APIs/queries — renames, pagination stitching, enum mapping. Nothing outside adapters touches real endpoints.
 
@@ -127,6 +129,8 @@ Error responses: structured, user-presentable, and free of internal URLs, stack 
 
 For diverging pairs such as population pyramids, tornado charts, and butterfly comparisons, Generators SHOULD build two mirrored charts in adjacent grid cells, set `"scale": {"reverse": true}` on the left chart's quantitative channel, and declare the same explicit quantitative domain on both halves. Keep category labels on the outer left by default and set the right chart's nominal axis to `null`; use `"axis": {"orient": "right"}` on the left chart only when center-spine labels are desired.
 
+Generator prompt requirement: "Row-level math (for example, quantity × price) is a `derived` entry with a structured `expr`—never a string formula and never encoded in a field name. Ratios of aggregates are calc-form metrics over sibling aliases. Every derived field and metric declares an `alias`, plus a `label` when displayed."
+
 Do not give the model credentials, endpoints, URL-fetching tools, or execution tools (§20). Optional but high-value tools to expose instead: `describe_source`, `preview_dataset` (broker-backed, viewer-scoped, row-capped), `validate_document`.
 
 ---
@@ -136,6 +140,7 @@ Do not give the model credentials, endpoints, URL-fetching tools, or execution t
 * [ ] `python conformance/runner.py --cmd "<your validator>"` — every manifest case passes
 * [ ] The three `samples/` documents render end-to-end against your catalog-equivalent sources (adjust source/field names or add a mapping catalog)
 * [ ] Broker rejects a hand-crafted execution request containing an inline dataset definition
+* [ ] Broker fixture proves that a row-level derived multiply followed by a grouped sum returns alias-keyed groups
 * [ ] A document requesting a field the viewer may not see renders everything else and shows a per-component auth error
 * [ ] Killing one dataset's backing source degrades only that component
 * [ ] Regenerating a report produces a new version; the old version still renders

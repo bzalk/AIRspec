@@ -1,0 +1,1 @@
+{"airspec":"1.1","meta":{"title":"Invalid divide arity"},"datasets":[{"id":"sales","source":"orders","operation":"aggregate","derived":[{"alias":"bad","expr":{"divide":["quantity","price",2]}}],"metrics":[{"operation":"sum","field":"bad","alias":"total"}]}],"layout":{"id":"root","type":"text","text":"Invalid"}}

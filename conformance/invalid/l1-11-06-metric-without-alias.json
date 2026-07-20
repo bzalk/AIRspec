@@ -1,0 +1,1 @@
+{"airspec":"1.1","meta":{"title":"Invalid missing metric alias"},"datasets":[{"id":"sales","source":"orders","operation":"aggregate","metrics":[{"operation":"count"}]}],"layout":{"id":"root","type":"text","text":"Invalid"}}

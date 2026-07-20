@@ -1,0 +1,75 @@
+{
+  "airspec": "1.1",
+  "meta": {
+    "title": "Sales Revenue by Region (derived fields conformance)",
+    "description": "Valid: row-level derived multiply, aggregate over the derived alias, count, and a post-aggregation calculated ratio metric."
+  },
+  "datasets": [
+    {
+      "id": "sales",
+      "source": "orders",
+      "operation": "aggregate",
+      "derived": [
+        {
+          "alias": "line_revenue",
+          "label": "Line Revenue",
+          "expr": { "multiply": ["quantity", "price"] }
+        }
+      ],
+      "dimensions": [{ "field": "region", "alias": "region" }],
+      "metrics": [
+        {
+          "operation": "sum",
+          "field": "line_revenue",
+          "alias": "total_sales_revenue",
+          "label": "Total Sales Revenue"
+        },
+        { "operation": "count", "alias": "orders", "label": "Orders" },
+        {
+          "alias": "avg_order_value",
+          "label": "Avg Order Value",
+          "calc": { "divide": ["total_sales_revenue", "orders"] }
+        }
+      ],
+      "sort": [{ "field": "total_sales_revenue", "direction": "descending" }]
+    }
+  ],
+  "layout": {
+    "id": "root",
+    "type": "stack",
+    "gap": "medium",
+    "children": [
+      {
+        "id": "chart",
+        "type": "chart",
+        "datasetId": "sales",
+        "title": "Total Sales Revenue by Region",
+        "grid": { "span": 12, "minHeight": 320 },
+        "graphic": {
+          "mark": { "type": "bar", "color": "#3264D6" },
+          "encoding": {
+            "x": { "field": "region", "type": "nominal", "title": "Region" },
+            "y": {
+              "field": "total_sales_revenue",
+              "type": "quantitative",
+              "title": "Total Sales Revenue",
+              "axis": { "format": { "type": "currency", "maximumFractionDigits": 0, "notation": "compact" } }
+            }
+          }
+        }
+      },
+      {
+        "id": "tbl",
+        "type": "table",
+        "datasetId": "sales",
+        "title": "Detail",
+        "columns": [
+          { "field": "region", "label": "Region" },
+          { "field": "total_sales_revenue", "label": "Total Sales Revenue", "format": { "type": "currency", "maximumFractionDigits": 0 } },
+          { "field": "orders", "label": "Orders" },
+          { "field": "avg_order_value", "label": "Avg Order Value", "format": { "type": "currency", "maximumFractionDigits": 2 } }
+        ]
+      }
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 {
   "airspecVersions": ["1.0", "1.1"],
-  "suiteVersion": "1.1.3",
+  "suiteVersion": "1.1.4",
   "catalog": "catalog.json",
   "policy": "policy.example.json",
   "semantics": {
@@ -198,6 +198,12 @@
       "description": "AIRspec 1.1 mirrored population pyramid: reversed left axis, identical explicit quantitative domains, outer-left category labels, and the right category axis suppressed."
     },
     {
+      "id": "V11-03",
+      "file": "valid/v06-derived-revenue.json",
+      "expect": "accept",
+      "description": "AIRspec 1.1 derived revenue: row-level structured multiply, grouped sum, count, and post-aggregation calculated ratio, all alias-keyed."
+    },
+    {
       "id": "L1-11-01",
       "file": "invalid/l1-11-01-literal-and-bound-sort.json",
       "expect": "reject",
@@ -217,6 +223,48 @@
       "expect": "reject",
       "layer": 1,
       "violation": "Interaction declares both legacy `action` and atomic `actions`; exactly one is permitted."
+    },
+    {
+      "id": "L1-11-04",
+      "file": "invalid/l1-11-04-derived-expression-string.json",
+      "expect": "reject",
+      "layer": 1,
+      "violation": "Derived `expr` is a string formula; only the closed structured arithmetic tree is permitted."
+    },
+    {
+      "id": "L1-11-05",
+      "file": "invalid/l1-11-05-derived-unknown-operation.json",
+      "expect": "reject",
+      "layer": 1,
+      "violation": "Derived expression uses `power`, outside the closed arithmetic vocabulary."
+    },
+    {
+      "id": "L1-11-06",
+      "file": "invalid/l1-11-06-metric-without-alias.json",
+      "expect": "reject",
+      "layer": 1,
+      "violation": "Every aggregate-form and calc-form metric must declare its output alias."
+    },
+    {
+      "id": "L1-11-07",
+      "file": "invalid/l1-11-07-metric-operation-and-calc.json",
+      "expect": "reject",
+      "layer": 1,
+      "violation": "A metric cannot declare both aggregate-form `operation` and calc-form `calc`."
+    },
+    {
+      "id": "L1-11-08",
+      "file": "invalid/l1-11-08-divide-three-operands.json",
+      "expect": "reject",
+      "layer": 1,
+      "violation": "Structured `divide` requires exactly two operands."
+    },
+    {
+      "id": "L1-11-09",
+      "file": "invalid/l1-11-09-derived-two-operations.json",
+      "expect": "reject",
+      "layer": 1,
+      "violation": "A derived expression node must contain exactly one operation key."
     },
     {
       "id": "L2-11-01",

@@ -1,0 +1,1 @@
+{"airspec":"1.1","meta":{"title":"Invalid metric forms"},"datasets":[{"id":"sales","source":"orders","operation":"aggregate","metrics":[{"operation":"count","alias":"orders","calc":{"divide":[1,2]}}]}],"layout":{"id":"root","type":"text","text":"Invalid"}}
