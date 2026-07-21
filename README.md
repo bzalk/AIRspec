@@ -149,4 +149,10 @@ MIT (recommended; see [LICENSE](./LICENSE)).
 
 ---
 
+## Development and release assistance
+
+AIRspec was designed and directed by Brian Zalk. OpenAI Codex was used as an engineering assistant in interactive development sessions to help develop and refine the specification, schemas, conformance fixtures, documentation, website, and AIRMark reference engine; run verification; configure and deploy the GitHub repositories; and launch and maintain the public `@airspec` packages on npm through trusted publishing. Project decisions, authorship, ownership, and releases remain with Brian Zalk.
+
+---
+
 *AIRspec — declare the report, trust the host.*
