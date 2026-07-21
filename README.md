@@ -36,6 +36,15 @@ AI Generator  ──→  AIRspec Document (validated JSON)
 
 You don't need to read any code to get oriented. There are two roles in every AIRspec system — the **Host** (your application) and the **Generator** (your AI pipeline) — and you can adopt each incrementally.
 
+### Build with your AI coding tool
+
+Start with the [AI implementation quick start](./QUICKSTART.md), then copy the prompt for your stack:
+
+* [Framework-agnostic renderer prompt](./prompts/IMPLEMENT-GENERIC.md)
+* [React renderer prompt](./prompts/IMPLEMENT-REACT.md)
+
+Both prompts are vendor-neutral implementation contracts. They guide an AI coding agent through validation, the Data Broker, the trusted component registry, layout, AIRMark integration, interactions, conformance tests, and production verification. The React prompt uses [`JamrockPartners/airspec-demo`](https://github.com/JamrockPartners/airspec-demo) as a non-normative working reference.
+
 ### Step 1 — Decide what your Host will support
 
 The spec defines three conformance classes so you can start small:
@@ -95,6 +104,7 @@ AIRspec.md          The specification (start here)
 CHANGELOG.md        Version history and compatibility notes
 IMPLEMENTATION.md   Build guide for implementing an AIRspec Host
 README.md           This file
+QUICKSTART.md       AI-tool quick start and project brief
 LICENSE             MIT
 schema/
   1.0/
@@ -113,6 +123,7 @@ samples/
   catalogs/orders.catalog.json          Example Source Catalog entry
 adapters/           Renderer architecture guide and reference adapter
                     sketches (see adapters/README.md)
+prompts/            Generic and React copy-paste AI implementation prompts
 ```
 
 Every sample validates against the published schema — see `samples/README.md` for a one-liner to try it yourself. Contributions welcome.
