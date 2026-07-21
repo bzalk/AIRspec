@@ -131,6 +131,8 @@ For diverging pairs such as population pyramids, tornado charts, and butterfly c
 
 Generator prompt requirement: "Row-level math (for example, quantity × price) is a `derived` entry with a structured `expr`—never a string formula and never encoded in a field name. Ratios of aggregates are calc-form metrics over sibling aliases. Every derived field and metric declares an `alias`, plus a `label` when displayed."
 
+Generator prompt requirement: "Charts intended for hover exploration should declare a `tooltip` array with titled, §11-formatted fields."
+
 Do not give the model credentials, endpoints, URL-fetching tools, or execution tools (§20). Optional but high-value tools to expose instead: `describe_source`, `preview_dataset` (broker-backed, viewer-scoped, row-capped), `validate_document`.
 
 ---
